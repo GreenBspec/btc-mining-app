@@ -1,11 +1,187 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BTC Mining App</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: auto;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .bitcoin {
+      font-size: 48px;
+    }
+
+    h1 {
+      margin: 5px 0;
+    }
+
+    .card {
+      background: #1f2937;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .label {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .balance {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      background: #374151;
+      padding: 15px;
+      border-radius: 14px;
+    }
+
+    .value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #f7931a;
+      color: white;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 12px;
+      color: #22c55e;
+    }
+
+    .footer {
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>₿ BTC Mining App</h1>
-  <p>Welcome to your Bitcoin mining dashboard.</p>
+
+  <div class="app">
+
+    <div class="header">
+      <div class="bitcoin">₿</div>
+      <h1>BTC Mining App</h1>
+      <p>Mining Dashboard</p>
+    </div>
+
+    <div class="card">
+      <div class="label">BTC Balance</div>
+      <div class="balance" id="balance">0.00000000 BTC</div>
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+        <div class="label">Mining Speed</div>
+        <div class="value">0.00 TH/s</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Rewards</div>
+        <div class="value" id="rewards">0 BTC</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Status</div>
+        <div class="value" id="status">Stopped</div>
+      </div>
+
+      <div class="stat">
+        <div class="label">Uptime</div>
+        <div class="value" id="uptime">0 min</div>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <button onclick="startMining()">Start Mining</button>
+      <div class="status" id="message">Mining is currently stopped</div>
+    </div>
+
+    <div class="footer">
+      BTC Mining App • Demo Dashboard
+    </div>
+
+  </div>
+
+  <script>
+    let mining = false;
+    let seconds = 0;
+
+    function startMining() {
+      mining = !mining;
+
+      const status = document.getElementById("status");
+      const message = document.getElementById("message");
+
+      if (mining) {
+        status.innerText = "Running";
+        message.innerText = "Mining session started";
+      } else {
+        status.innerText = "Stopped";
+        message.innerText = "Mining is currently stopped";
+      }
+    }
+
+    setInterval(function() {
+      if (mining) {
+        seconds++;
+
+        const minutes = Math.floor(seconds / 60);
+        document.getElementById("uptime").innerText = minutes + " min";
+      }
+    }, 1000);
+  </script>
+
 </body>
 </html>
