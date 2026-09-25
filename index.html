@@ -3,185 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Mining App</title>
+  <title>BTC Mining Dashboard</title>
 
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
       font-family: Arial, sans-serif;
-      background: #111827;
-      color: white;
-    }
-
-    .app {
-      max-width: 480px;
-      margin: auto;
-      min-height: 100vh;
-      padding: 20px;
+      background: #f4f6f8;
+      color: #222;
     }
 
     .header {
-      text-align: center;
-      padding: 20px 0;
-    }
-
-    .bitcoin {
-      font-size: 48px;
-    }
-
-    h1 {
-      margin: 5px 0;
-    }
-
-    .card {
-      background: #1f2937;
-      border-radius: 18px;
+      background: #111827;
+      color: white;
       padding: 20px;
-      margin-bottom: 16px;
+      text-align: center;
     }
 
-    .label {
-      color: #9ca3af;
-      font-size: 14px;
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
     }
 
     .balance {
-      font-size: 32px;
-      font-weight: bold;
-      margin-top: 8px;
+      background: #f7931a;
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+    .balance h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .balance .amount {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
     }
 
     .stat {
-      background: #374151;
-      padding: 15px;
-      border-radius: 14px;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
     }
 
-    .value {
-      font-size: 20px;
+    .stat:last-child {
+      border-bottom: none;
+    }
+
+    .status {
+      color: #16a34a;
       font-weight: bold;
-      margin-top: 6px;
     }
 
     button {
       width: 100%;
+      padding: 14px;
       border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
+      border-radius: 10px;
       background: #f7931a;
       color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
     }
 
-    button:active {
-      transform: scale(0.98);
+    button:hover {
+      opacity: 0.9;
     }
 
-    .status {
-      text-align: center;
-      margin-top: 12px;
-      color: #22c55e;
-    }
-
-    .footer {
-      text-align: center;
-      color: #6b7280;
+    .notice {
       font-size: 12px;
-      margin-top: 25px;
+      color: #666;
+      text-align: center;
+      margin-top: 20px;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="app">
-
-    <div class="header">
-      <div class="bitcoin">₿</div>
-      <h1>BTC Mining App</h1>
-      <p>Mining Dashboard</p>
-    </div>
-
-    <div class="card">
-      <div class="label">BTC Balance</div>
-      <div class="balance" id="balance">0.00000000 BTC</div>
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-        <div class="label">Mining Speed</div>
-        <div class="value">0.00 TH/s</div>
-      </div>
-
-      <div class="stat">
-        <div class="label">Rewards</div>
-        <div class="value" id="rewards">0 BTC</div>
-      </div>
-
-      <div class="stat">
-        <div class="label">Status</div>
-        <div class="value" id="status">Stopped</div>
-      </div>
-
-      <div class="stat">
-        <div class="label">Uptime</div>
-        <div class="value" id="uptime">0 min</div>
-      </div>
-
-    </div>
-
-    <div class="card">
-      <button onclick="startMining()">Start Mining</button>
-      <div class="status" id="message">Mining is currently stopped</div>
-    </div>
-
-    <div class="footer">
-      BTC Mining App • Demo Dashboard
-    </div>
-
+  <div class="header">
+    <h1>₿ BTC Mining App</h1>
+    <p>Mining Dashboard</p>
   </div>
 
-  <script>
-    let mining = false;
-    let seconds = 0;
+  <div class="container">
 
-    function startMining() {
-      mining = !mining;
+    <div class="balance">
+      <h2>BTC Balance</h2>
+      <div class="amount">0.00000000 BTC</div>
+    </div>
 
-      const status = document.getElementById("status");
-      const message = document.getElementById("message");
+    <div class="card">
+      <h3>⛏️ Mining Status</h3>
 
-      if (mining) {
-        status.innerText = "Running";
-        message.innerText = "Mining session started";
-      } else {
-        status.innerText = "Stopped";
-        message.innerText = "Mining is currently stopped";
-      }
-    }
+      <div class="stat">
+        <span>Status</span>
+        <span class="status">● Active</span>
+      </div>
 
-    setInterval(function() {
-      if (mining) {
-        seconds++;
+      <div class="stat">
+        <span>Mining Rate</span>
+        <span>0.00000001 BTC/hour</span>
+      </div>
 
-        const minutes = Math.floor(seconds / 60);
-        document.getElementById("uptime").innerText = minutes + " min";
-      }
-    }, 1000);
-  </script>
+      <div class="stat">
+        <span>Mining Time</span>
+        <span>0 hours</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📊 Statistics</h3>
+
+      <div class="stat">
+        <span>Total Mined</span>
+        <span>0.00000000 BTC</span>
+      </div>
+
+      <div class="stat">
+        <span>Today's Reward</span>
+        <span>0.00000000 BTC</span>
+      </div>
+
+      <div class="stat">
+        <span>Users</span>
+        <span>1</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💰 Rewards</h3>
+      <p>Available reward: <strong>0.00000000 BTC</strong></p>
+      <button onclick="alert('Withdrawal feature will be added later.')">
+        Withdraw
+      </button>
+    </div>
+
+    <p class="notice">
+      Demo dashboard — mining and withdrawals are not connected to a real Bitcoin network yet.
+    </p>
+
+  </div>
 
 </body>
 </html>
