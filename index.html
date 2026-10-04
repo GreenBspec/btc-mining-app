@@ -73,10 +73,6 @@ button {
   font-size: 16px;
   cursor: pointer;
 }
-
-button:hover {
-  opacity: 0.9;
-}
 </style>
 </head>
 
@@ -146,46 +142,6 @@ button:hover {
 </div>
 
 <script>
-
-let startTime = Date.now();
-
-const miningRate = 0.00010
-
-function updateMining() {
-
-  const elapsedHours =
-    (Date.now() - startTime) / 3600000;
-
-  const mined =
-    elapsedHours * miningRate;
-
-  document.getElementById("miningTime").textContent =
-    elapsedHours.toFixed(2) + " hours";
-
-  document.getElementById("balance").textContent =
-    mined.toFixed(8) + " BTC";
-
-  document.getElementById("totalMined").textContent =
-    mined.toFixed(8) + " BTC";
-
-  document.getElementById("todayReward").textContent =
-    mined.toFixed(8) + " BTC";
-
-  document.getElementById("reward").textContent =
-    mined.toFixed(8) + " BTC";
-}
-
-function startMining() {
-  startTime = Date.now();
-  updateMining();
-}
-
-setInterval(updateMining, 1000);
-
-updateMining();
-
-</script>
-
 let startTime = localStorage.getItem("miningStartTime");
 
 if (!startTime) {
@@ -219,85 +175,13 @@ function updateMining() {
 
 function startMining() {
   startTime = Date.now();
-  
-<script>
-let startTime = localStorage.getItem("miningStartTime");
-
-if (!startTime) {
-    startTime = Date.now();
-    localStorage.setItem("miningStartTime", startTime);
-}
-
-const miningRate = 0.00010;
-
-function updateMining() {
-    const now = Date.now();
-    const elapsedHours = (now - Number(startTime)) / 3600000;
-    const mined = elapsedHours * miningRate;
-
-    document.getElementById("miningTime").textContent =
-        elapsedHours.toFixed(2) + " hours";
-
-    document.getElementById("balance").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("totalMined").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("todayReward").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("reward").textContent =
-        mined.toFixed(8) + " BTC";
-}
-
-function startMining() {
-    startTime = Date.now();
-    localStorage.setItem("miningStartTime", startTime);
-    updateMining();
-}
-
-
-<script>
-let startTime = localStorage.getItem("miningStartTime");
-
-if (!startTime) {
-    startTime = Date.now();
-    localStorage.setItem("miningStartTime", startTime);
-}
-
-const miningRate = 0.00010;
-
-function updateMining() {
-    const elapsedHours =
-        (Date.now() - Number(startTime)) / 3600000;
-
-    const mined = elapsedHours * miningRate;
-
-    document.getElementById("miningTime").textContent =
-        elapsedHours.toFixed(2) + " hours";
-
-    document.getElementById("balance").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("totalMined").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("todayReward").textContent =
-        mined.toFixed(8) + " BTC";
-
-    document.getElementById("reward").textContent =
-        mined.toFixed(8) + " BTC";
-}
-
-function startMining() {
-    startTime = Date.now();
-    localStorage.setItem("miningStartTime", startTime);
-    updateMining();
+  localStorage.setItem("miningStartTime", startTime);
+  updateMining();
 }
 
 setInterval(updateMining, 1000);
 updateMining();
 </script>
+
 </body>
 </html>
