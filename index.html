@@ -63,6 +63,15 @@ header {
   margin: 10px 0;
 }
 
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
 button {
   width: 100%;
   padding: 14px;
@@ -72,6 +81,37 @@ button {
   color: white;
   font-size: 16px;
   cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.withdraw-button {
+  background: #f7931a;
+}
+
+.message {
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+.history-item {
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 0;
+  font-size: 14px;
+}
+
+.pending {
+  color: #d97706;
+  font-weight: bold;
+}
+
+.demo {
+  background: #fff7ed;
+  border-left: 4px solid #f7931a;
+  padding: 12px;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -88,6 +128,14 @@ button {
   <div class="card">
     <h2>Welcome!</h2>
     <p>Logged in as: <strong>User</strong></p>
+  </div>
+
+  <div class="card demo">
+    <strong>Demo Mode</strong>
+    <p>
+      This app currently uses simulated mining balances.
+      Withdrawal requests are recorded locally and do not send real BTC.
+    </p>
   </div>
 
   <div class="card balance">
@@ -139,9 +187,46 @@ button {
     <button onclick="startMining()">Start Mining</button>
   </div>
 
+  <div class="card">
+    <h2>💸 Withdraw BTC</h2>
+
+    <p>Minimum withdrawal: <strong>0.00010000 BTC</strong></p>
+
+    <label>Bitcoin wallet address</label>
+    <input
+      type="text"
+      id="walletAddress"
+      placeholder="Enter Bitcoin wallet address"
+    >
+
+    <label>Withdrawal amount (BTC)</label>
+    <input
+      type="number"
+      id="withdrawAmount"
+      placeholder="0.00010000"
+      step="0.00000001"
+      min="0"
+    >
+
+    <button class="withdraw-button" onclick="requestWithdrawal()">
+      Request Withdrawal
+    </button>
+
+    <div id="withdrawMessage" class="message"></div>
+  </div>
+
+  <div class="card">
+    <h2>📜 Withdrawal History</h2>
+
+    <div id="withdrawalHistory">
+      <p>No withdrawal requests yet.</p>
+    </div>
+  </div>
+
 </div>
 
 <script>
+
 let startTime = localStorage.getItem("miningStartTime");
 
 if (!startTime) {
@@ -150,12 +235,21 @@ if (!startTime) {
 }
 
 const miningRate = 0.00010;
+const minimumWithdrawal = 0.00010;
 
-function updateMining() {
+function getMined() {
   const elapsedHours =
     (Date.now() - Number(startTime)) / 3600000;
 
-  const mined = elapsedHours * miningRate;
+  return elapsedHours * miningRate;
+}
+
+function updateMining() {
+
+  const elapsedHours =
+    (Date.now() - Number(startTime)) / 3600000;
+
+  const mined = getMined();
 
   document.getElementById("miningTime").textContent =
     elapsedHours.toFixed(2) + " hours";
@@ -174,13 +268,125 @@ function updateMining() {
 }
 
 function startMining() {
+
   startTime = Date.now();
-  localStorage.setItem("miningStartTime", startTime);
+
+  localStorage.setItem(
+    "miningStartTime",
+    startTime
+  );
+
   updateMining();
 }
 
+function requestWithdrawal() {
+
+  const wallet =
+    document.getElementById("walletAddress").value.trim();
+
+  const amount =
+    parseFloat(
+      document.getElementById("withdrawAmount").value
+    );
+
+  const currentBalance = getMined();
+
+  const message =
+    document.getElementById("withdrawMessage");
+
+  if (!wallet) {
+    message.textContent =
+      "Please enter a Bitcoin wallet address.";
+    return;
+  }
+
+  if (!amount || amount <= 0) {
+    message.textContent =
+      "Please enter a valid withdrawal amount.";
+    return;
+  }
+
+  if (amount < minimumWithdrawal) {
+    message.textContent =
+      "Minimum withdrawal is 0.00010000 BTC.";
+    return;
+  }
+
+  if (amount > currentBalance) {
+    message.textContent =
+      "Insufficient demo balance.";
+    return;
+  }
+
+  const withdrawals =
+    JSON.parse(
+      localStorage.getItem("withdrawals") || "[]"
+    );
+
+  withdrawals.push({
+    amount: amount.toFixed(8),
+    wallet: wallet,
+    date: new Date().toLocaleString(),
+    status: "Pending"
+  });
+
+  localStorage.setItem(
+    "withdrawals",
+    JSON.stringify(withdrawals)
+  );
+
+  message.textContent =
+    "Withdrawal request recorded as Pending.";
+
+  document.getElementById("walletAddress").value = "";
+  document.getElementById("withdrawAmount").value = "";
+
+  displayWithdrawals();
+}
+
+function displayWithdrawals() {
+
+  const history =
+    document.getElementById("withdrawalHistory");
+
+  const withdrawals =
+    JSON.parse(
+      localStorage.getItem("withdrawals") || "[]"
+    );
+
+  if (withdrawals.length === 0) {
+    history.innerHTML =
+      "<p>No withdrawal requests yet.</p>";
+    return;
+  }
+
+  history.innerHTML = "";
+
+  withdrawals.slice().reverse().forEach(function(item) {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "history-item";
+
+    div.innerHTML =
+      "<strong>" + item.amount + " BTC</strong><br>" +
+      "Wallet: " + item.wallet + "<br>" +
+      "Date: " + item.date + "<br>" +
+      "Status: <span class='pending'>" +
+      item.status +
+      "</span>";
+
+    history.appendChild(div);
+  });
+}
+
 setInterval(updateMining, 1000);
+
 updateMining();
+displayWithdrawals();
+
 </script>
+
 </body>
 </html>
