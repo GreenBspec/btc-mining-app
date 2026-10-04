@@ -1,4 +1,4 @@
-u7<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,55 +6,61 @@ u7<!DOCTYPE html>
 <title>₿ BTC Mining App</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  padding: 20px;
+* {
+  box-sizing: border-box;
 }
 
-.container {
-  max-width: 600px;
-  margin: auto;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  color: #111827;
 }
 
 header {
   background: #111827;
   color: white;
-  padding: 20px;
-  border-radius: 12px;
   text-align: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 15px;
 }
 
 .card {
   background: white;
-  margin-top: 15px;
-  padding: 20px;
   border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .balance {
   background: #f7931a;
   color: white;
-  font-size: 28px;
-  font-weight: bold;
   text-align: center;
 }
 
-.row {
-  display: flex;
-  justify-content: space-between;
-  margin: 12px 0;
-}
-
-.label {
-  font-weight: bold;
+.balance h2 {
+  margin: 5px 0;
+  font-size: 28px;
 }
 
 .status {
-  color: green;
   font-weight: bold;
+}
+
+.active {
+  color: green;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
 }
 
 button {
@@ -65,96 +71,93 @@ button {
   background: #111827;
   color: white;
   font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
 <header>
   <h1>₿ BTC Mining App</h1>
   <p>Mining Dashboard</p>
 </header>
 
-<div class="card">
-  <h2>Welcome!</h2>
-  <p>Logged in as: www.estiaanm012@gmail.com</p>
-</div>
+<div class="container">
 
-<div class="card balance">
-  <div>BTC Balance</div>
-  <div id="balance">0.00000000 BTC</div>
-</div>
-
-<div class="card">
-  <h2>⛏️ Mining Status</h2>
-
-  <div class="row">
-    <span class="label">Status:</span>
-    <span class="status">● Active</span>
+  <div class="card">
+    <h2>Welcome!</h2>
+    <p>Logged in as: <strong>User</strong></p>
   </div>
 
-  <div class="row">
-    <span class="label">Mining Rate:</span>
-    <span>0.00000001 BTC/hour</span>
+  <div class="card balance">
+    <p>BTC Balance</p>
+    <h2 id="balance">0.00000000 BTC</h2>
   </div>
 
-  <div class="row">
-    <span class="label">Mining Time:</span>
-    <span id="miningTime">0.00 hours</span>
-  </div>
-</div>
+  <div class="card">
+    <h2>⛏️ Mining Status</h2>
 
-<div class="card">
-  <h2>📊 Statistics</h2>
+    <p>Status:
+      <span class="status active">● Active</span>
+    </p>
 
-  <div class="row">
-    <span class="label">Total Mined:</span>
-    <span id="totalMined">0.00000000 BTC</span>
-  </div>
+    <p>Mining Rate:
+      <strong>0.00000001 BTC/hour</strong>
+    </p>
 
-  <div class="row">
-    <span class="label">Today's Reward:</span>
-    <span id="todayReward">0.00000000 BTC</span>
+    <p>Mining Time:
+      <strong id="miningTime">0.00 hours</strong>
+    </p>
   </div>
 
-  <div class="row">
-    <span class="label">Users:</span>
-    <span>1</span>
-  </div>
-</div>
+  <div class="card">
+    <h2>📊 Statistics</h2>
 
-<div class="card">
-  <h2>💰 Rewards</h2>
+    <div class="stat">
+      <span>Total Mined</span>
+      <strong id="totalMined">0.00000000 BTC</strong>
+    </div>
 
-  <div class="row">
-    <span class="label">Available reward:</span>
-    <span id="reward">0.00000000 BTC</span>
+    <div class="stat">
+      <span>Today's Reward</span>
+      <strong id="todayReward">0.00000000 BTC</strong>
+    </div>
+
+    <div class="stat">
+      <span>Users</span>
+      <strong>1</strong>
+    </div>
   </div>
-</div>
+
+  <div class="card">
+    <h2>💰 Rewards</h2>
+
+    <p>Available reward:</p>
+    <h3 id="reward">0.00000000 BTC</h3>
+
+    <button onclick="startMining()">Start Mining</button>
+  </div>
 
 </div>
 
 <script>
 
-const miningRate = 0.00000001; // BTC per hour
+let startTime = Date.now();
 
-let startTime = localStorage.getItem("miningStartTime");
-
-if (!startTime) {
-  startTime = Date.now();
-  localStorage.setItem("miningStartTime", startTime);
-}
+const miningRate = 0.00000001;
 
 function updateMining() {
 
-  const elapsedMilliseconds = Date.now() - Number(startTime);
+  const elapsedHours =
+    (Date.now() - startTime) / 3600000;
 
-  const elapsedHours = elapsedMilliseconds / (1000 * 60 * 60);
-
-  const mined = elapsedHours * miningRate;
+  const mined =
+    elapsedHours * miningRate;
 
   document.getElementById("miningTime").textContent =
     elapsedHours.toFixed(2) + " hours";
@@ -172,64 +175,16 @@ function updateMining() {
     mined.toFixed(8) + " BTC";
 }
 
-updateMining();
+function startMining() {
+  startTime = Date.now();
+  updateMining();
+}
 
 setInterval(updateMining, 1000);
 
+updateMining();
+
 </script>
-<div style="margin-top:25px;padding:20px;border-radius:12px;background:#ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-  <h2>💰 Withdraw BTC</h2>
-  <p>Available: <strong id="withdrawBalance">0.00000000 BTC</strong></p>
 
-  <input
-    id="walletAddress"
-    type="text"
-    placeholder="Enter Bitcoin wallet address"
-    style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;"
-  >
-
-  <input
-    id="withdrawAmount"
-    type="number"
-    step="0.00000001"
-    placeholder="Amount in BTC"
-    style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;"
-  >
-
-  <button
-    onclick="requestWithdrawal()"
-    style="width:100%;padding:13px;background:#f7931a;color:white;border:0;border-radius:8px;font-size:16px;font-weight:bold;"
-  >
-    Request Withdrawal
-  </button>
-
-  <p id="withdrawMessage" style="margin-top:12px;"></p>
-</div>const currentBalance = document.getElementById("balance").textContent;
-document.getElementById("withdrawBalance").textContent = currentBalance;
-
-<script>
-function requestWithdrawal() {
-  const wallet = document.getElementById("walletAddress").value.trim();
-  const amount = parseFloat(document.getElementById("withdrawAmount").value);
-  const message = document.getElementById("withdrawMessage");
-document.getElementById("withdrawBalance").textContent =
-    mined.toFixed(8) + " BTC";
-document.getElementById("withdrawBalance").textContent =
-    mined.toFixed(8) + " BTC";
-
-  if (!wallet) {
-    message.textContent = "Please enter your Bitcoin wallet address.";
-    return;
-  }
-
-  if (!amount || amount <= 0) {
-    message.textContent = "Please enter a valid BTC amount.";
-    return;
-  }
-
-  message.textContent =
-    "Withdrawal request received. This is currently a demo/test withdrawal system.";
-}
-</script>
 </body>
 </html>
