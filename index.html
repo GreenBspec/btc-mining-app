@@ -186,5 +186,46 @@ updateMining();
 
 </script>
 
+let startTime = localStorage.getItem("miningStartTime");
+
+if (!startTime) {
+  startTime = Date.now();
+  localStorage.setItem("miningStartTime", startTime);
+}
+
+const miningRate = 0.00010;
+
+function updateMining() {
+  const elapsedHours =
+    (Date.now() - Number(startTime)) / 3600000;
+
+  const mined = elapsedHours * miningRate;
+
+  document.getElementById("miningTime").textContent =
+    elapsedHours.toFixed(2) + " hours";
+
+  document.getElementById("balance").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("totalMined").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("todayReward").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("reward").textContent =
+    mined.toFixed(8) + " BTC";
+}
+
+function startMining() {
+  startTime = Date.now();
+  localStorage.setItem("miningStartTime", startTime);
+  updateMining();
+}
+
+setInterval(updateMining, 1000);
+
+updateMining();
+
 </body>
 </html>
