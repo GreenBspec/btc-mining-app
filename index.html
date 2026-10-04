@@ -282,4 +282,17 @@ window.onload = function() {
 </script>
 
 </body>
-</html>
+</html><script>
+let miningSeconds =<span id="miningTime">0h 0m 0s</span> ;
+
+setInterval(function () {
+    miningSeconds++;
+
+    let hours = Math.floor(miningSeconds / 3600);
+    let minutes = Math.floor((miningSeconds % 3600) / 60);
+    let seconds = miningSeconds % 60;
+
+    document.getElementById("miningTime").textContent =
+        hours + "h " + minutes + "m " + seconds + "s";
+}, 1000);
+</script>
