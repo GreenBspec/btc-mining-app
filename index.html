@@ -3,13 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTC Mining App</title>
+<title>BTC Mining Dashboard</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -18,7 +14,7 @@ body {
 }
 
 .container {
-  max-width: 500px;
+  max-width: 600px;
   margin: auto;
   padding: 20px;
 }
@@ -26,26 +22,32 @@ body {
 header {
   background: #111827;
   color: white;
-  padding: 22px;
+  padding: 20px;
   text-align: center;
-  border-radius: 0 0 15px 15px;
+  border-radius: 12px;
 }
 
 .card {
   background: white;
+  margin-top: 15px;
   padding: 20px;
-  margin-top: 20px;
-  border-radius: 15px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-input {
-  width: 100%;
-  padding: 13px;
-  margin: 8px 0;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 16px;
+.balance {
+  background: #f7931a;
+  color: white;
+  text-align: center;
+}
+
+.balance h2 {
+  font-size: 28px;
+}
+
+.status {
+  color: green;
+  font-weight: bold;
 }
 
 button {
@@ -54,31 +56,13 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 8px;
-  background: #f7931a;
+  background: #111827;
   color: white;
   font-size: 16px;
-  font-weight: bold;
 }
 
-button.secondary {
-  background: #111827;
-}
-
-.hidden {
-  display: none;
-}
-
-.balance {
-  background: #f7931a;
-  color: white;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.stat {
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+button:hover {
+  opacity: 0.9;
 }
 
 .logout {
@@ -86,213 +70,119 @@ button.secondary {
 }
 
 .small {
-  font-size: 13px;
   color: #6b7280;
+  font-size: 13px;
   text-align: center;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <header>
   <h1>₿ BTC Mining App</h1>
   <p>Mining Dashboard</p>
 </header>
 
-<div class="container">
+<div class="card">
+  <h2>Welcome!</h2>
+  <p>Logged in as: <strong>www.estiaanm012@gmail.com</strong></p>
+</div>
 
-  <!-- LOGIN -->
-  <div id="loginScreen" class="card">
-    <h2>Login</h2>
+<div class="card balance">
+  <h3>BTC Balance</h3>
+  <h2 id="balance">0.00000000 BTC</h2>
+</div>
 
-    <input id="loginEmail" type="email" placeholder="Email">
-    <input id="loginPassword" type="password" placeholder="Password">
+<div class="card">
+  <h3>⛏️ Mining Status</h3>
+  <p>Status: <span class="status">● Active</span></p>
+  <p>Mining Rate: <strong>0.00000001 BTC/hour</strong></p>
+  <p>Mining Time: <strong><span id="miningTime">0</span> hours</strong></p>
+</div>
 
-    <button onclick="login()">Login</button>
-    <button class="secondary" onclick="showRegister()">Create Account</button>
+<div class="card">
+  <h3>📊 Statistics</h3>
+  <p>Total Mined: <strong><span id="totalMined">0.00000000</span> BTC</strong></p>
+  <p>Today's Reward: <strong><span id="todayReward">0.00000000</span> BTC</strong></p>
+  <p>Users: <strong>1</strong></p>
+</div>
 
-    <p id="loginMessage" class="small"></p>
-  </div>
+<div class="card">
+  <h3>💰 Rewards</h3>
+  <p>Available reward:</p>
+  <h2><span id="reward">0.00000000</span> BTC</h2>
 
-  <!-- REGISTER -->
-  <div id="registerScreen" class="card hidden">
-    <h2>Create Account</h2>
+  <button onclick="withdraw()">Withdraw</button>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
 
-    <input id="registerEmail" type="email" placeholder="Email">
-    <input id="registerPassword" type="password" placeholder="Password">
-
-    <button onclick="register()">Create Account</button>
-    <button class="secondary" onclick="showLogin()">Back to Login</button>
-
-    <p id="registerMessage" class="small"></p>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="hidden">
-
-    <div class="card">
-      <h2>Welcome!</h2>
-      <p id="userEmail"></p>
-    </div>
-
-    <div class="card">
-      <div class="balance">
-        <h3>BTC Balance</h3>
-        <h2>0.00000000 BTC</h2>
-      </div>
-
-      <h3>⛏️ Mining Status</h3>
-
-      <div class="stat">
-        Status: <strong>● Active</strong>
-      </div>
-
-      <div class="stat">
-        Mining Rate: 0.00000001 BTC/hour
-      </div>
-
-      <div class="stat">
-        Mining Time: 0 hours
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>📊 Statistics</h3>
-
-      <div class="stat">
-        Total Mined: 0.00000000 BTC
-      </div>
-
-      <div class="stat">
-        Today's Reward: 0.00000000 BTC
-      </div>
-
-      <div class="stat">
-        Users: 1
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>💰 Rewards</h3>
-
-      <p>Available reward: <strong>0.00000000 BTC</strong></p>
-
-      <button onclick="withdraw()">Withdraw</button>
-
-      <button class="logout" onclick="logout()">Logout</button>
-
-      <p class="small">
-        Demo dashboard — mining and withdrawals are not connected to a real Bitcoin network yet.
-      </p>
-    </div>
-
-  </div>
+<p class="small">
+  Demo mining system — this simulates mining and does not connect to the Bitcoin network.
+</p>
 
 </div>
 
 <script>
 
-function showRegister() {
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("registerScreen").classList.remove("hidden");
+let balance = parseFloat(localStorage.getItem("btcBalance")) || 0;
+let miningHours = parseFloat(localStorage.getItem("miningHours")) || 0;
+
+const miningRate = 0.00000001;
+
+function updateDisplay() {
+
+  document.getElementById("balance").textContent =
+    balance.toFixed(8) + " BTC";
+
+  document.getElementById("totalMined").textContent =
+    balance.toFixed(8);
+
+  document.getElementById("todayReward").textContent =
+    balance.toFixed(8);
+
+  document.getElementById("reward").textContent =
+    balance.toFixed(8);
+
+  document.getElementById("miningTime").textContent =
+    miningHours.toFixed(2);
 }
 
-function showLogin() {
-  document.getElementById("registerScreen").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-}
+function mine() {
 
-function register() {
+  balance += miningRate / 3600;
+  miningHours += 1 / 3600;
 
-  const email = document.getElementById("registerEmail").value;
-  const password = document.getElementById("registerPassword").value;
+  localStorage.setItem("btcBalance", balance);
+  localStorage.setItem("miningHours", miningHours);
 
-  if (!email || !password) {
-    document.getElementById("registerMessage").innerText =
-      "Please enter an email and password.";
-    return;
-  }
-
-  localStorage.setItem("btcEmail", email);
-  localStorage.setItem("btcPassword", password);
-
-  document.getElementById("registerMessage").innerText =
-    "Account created successfully!";
-
-  setTimeout(showLogin, 1000);
-}
-
-function login() {
-
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-
-  const savedEmail = localStorage.getItem("btcEmail");
-  const savedPassword = localStorage.getItem("btcPassword");
-
-  if (email === savedEmail && password === savedPassword) {
-
-    localStorage.setItem("btcLoggedIn", "true");
-
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-
-    document.getElementById("userEmail").innerText =
-      "Logged in as: " + email;
-
-  } else {
-
-    document.getElementById("loginMessage").innerText =
-      "Incorrect email or password.";
-
-  }
-}
-
-function logout() {
-
-  localStorage.removeItem("btcLoggedIn");
-
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
+  updateDisplay();
 }
 
 function withdraw() {
 
-  alert("Withdrawals are not available yet. This is still a demo.");
-
-}
-
-window.onload = function() {
-
-  if (localStorage.getItem("btcLoggedIn") === "true") {
-
-    const email = localStorage.getItem("btcEmail");
-
-    document.getElementById("loginScreen").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-
-    document.getElementById("userEmail").innerText =
-      "Logged in as: " + email;
+  if (balance <= 0) {
+    alert("You do not have any simulated BTC available yet.");
+    return;
   }
 
-};
+  alert(
+    "Withdrawal system coming soon. This demo does not send real Bitcoin."
+  );
+}
+
+function logout() {
+  alert("Logout system coming soon.");
+}
+
+updateDisplay();
+
+setInterval(mine, 1000);
 
 </script>
 
 </body>
-</html><script>
-let miningSeconds =<span id="miningTime">0h 0m 0s</span> ;
-
-setInterval(function () {
-    miningSeconds++;
-
-    let hours = Math.floor(miningSeconds / 3600);
-    let minutes = Math.floor((miningSeconds % 3600) / 60);
-    let seconds = miningSeconds % 60;
-
-    document.getElementById("miningTime").textContent =
-        hours + "h " + minutes + "m " + seconds + "s";
-}, 1000);
-</script>
+</html>
