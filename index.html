@@ -177,6 +177,54 @@ updateMining();
 setInterval(updateMining, 1000);
 
 </script>
+<div style="margin-top:25px;padding:20px;border-radius:12px;background:#ffffff;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+  <h2>💰 Withdraw BTC</h2>
+  <p>Available: <strong id="withdrawBalance">0.00000000 BTC</strong></p>
 
+  <input
+    id="walletAddress"
+    type="text"
+    placeholder="Enter Bitcoin wallet address"
+    style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;"
+  >
+
+  <input
+    id="withdrawAmount"
+    type="number"
+    step="0.00000001"
+    placeholder="Amount in BTC"
+    style="width:100%;padding:12px;margin:8px 0;border:1px solid #ccc;border-radius:8px;box-sizing:border-box;"
+  >
+
+  <button
+    onclick="requestWithdrawal()"
+    style="width:100%;padding:13px;background:#f7931a;color:white;border:0;border-radius:8px;font-size:16px;font-weight:bold;"
+  >
+    Request Withdrawal
+  </button>
+
+  <p id="withdrawMessage" style="margin-top:12px;"></p>
+</div>
+
+<script>
+function requestWithdrawal() {
+  const wallet = document.getElementById("walletAddress").value.trim();
+  const amount = parseFloat(document.getElementById("withdrawAmount").value);
+  const message = document.getElementById("withdrawMessage");
+
+  if (!wallet) {
+    message.textContent = "Please enter your Bitcoin wallet address.";
+    return;
+  }
+
+  if (!amount || amount <= 0) {
+    message.textContent = "Please enter a valid BTC amount.";
+    return;
+  }
+
+  message.textContent =
+    "Withdrawal request received. This is currently a demo/test withdrawal system.";
+}
+</script>
 </body>
 </html>
