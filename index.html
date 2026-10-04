@@ -1,85 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BTC Mining Dashboard</title>
+<title>₿ BTC Mining App</title>
+
 <style>
-body{font-family:Arial;background:#f4f6f8;margin:0;padding:20px}
-.container{max-width:600px;margin:auto}
-header{background:#111827;color:white;padding:20px;border-radius:12px}
-.card{background:white;padding:20px;margin-top:15px;border-radius:12px}
-.balance{background:#f7931a;color:white;text-align:center}
-h1,h2{margin-top:0}
-.value{font-size:28px;font-weight:bold}
-.active{color:green;font-weight:bold}
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+
+header {
+  background: #111827;
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.card {
+  background: white;
+  margin-top: 15px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.balance {
+  background: #f7931a;
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.status {
+  color: green;
+  font-weight: bold;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
 <header>
-<h1>₿ BTC Mining App</h1>
-<p>Mining Dashboard</p>
+  <h1>₿ BTC Mining App</h1>
+  <p>Mining Dashboard</p>
 </header>
 
 <div class="card">
-<h2>Welcome!</h2>
-<p>Logged in as: www.estiaanm012@gmail.com</p>
+  <h2>Welcome!</h2>
+  <p>Logged in as: www.estiaanm012@gmail.com</p>
 </div>
 
 <div class="card balance">
-<h2>BTC Balance</h2>
-<div class="value" id="balance">0.00000000 BTC</div>
+  <div>BTC Balance</div>
+  <div id="balance">0.00000000 BTC</div>
 </div>
 
 <div class="card">
-<h2>⛏️ Mining Status</h2>
-<p>Status: <span class="active">● Active</span></p>
-<p>Mining Rate: <span id="rate">0.00000001 BTC/hour</span></p>
-<p>Mining Time: <span id="hours">0</span> hours</p>
+  <h2>⛏️ Mining Status</h2>
+
+  <div class="row">
+    <span class="label">Status:</span>
+    <span class="status">● Active</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Mining Rate:</span>
+    <span>0.00000001 BTC/hour</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Mining Time:</span>
+    <span id="miningTime">0.00 hours</span>
+  </div>
 </div>
 
 <div class="card">
-<h2>📊 Statistics</h2>
-<p>Total Mined: <span id="total">0.00000000 BTC</span></p>
-<p>Today's Reward: <span id="today">0.00000000 BTC</span></p>
-<p>Users: 1</p>
+  <h2>📊 Statistics</h2>
+
+  <div class="row">
+    <span class="label">Total Mined:</span>
+    <span id="totalMined">0.00000000 BTC</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Today's Reward:</span>
+    <span id="todayReward">0.00000000 BTC</span>
+  </div>
+
+  <div class="row">
+    <span class="label">Users:</span>
+    <span>1</span>
+  </div>
 </div>
 
 <div class="card">
-<h2>💰 Rewards</h2>
-<p>Available reward: <b id="reward">0.00000000 BTC</b></p>
+  <h2>💰 Rewards</h2>
+
+  <div class="row">
+    <span class="label">Available reward:</span>
+    <span id="reward">0.00000000 BTC</span>
+  </div>
 </div>
 
 </div>
 
 <script>
-const ratePerHour = 0.00000001;
-const startTime = Date.now();
+
+const miningRate = 0.00000001; // BTC per hour
+
+let startTime = localStorage.getItem("miningStartTime");
+
+if (!startTime) {
+  startTime = Date.now();
+  localStorage.setItem("miningStartTime", startTime);
+}
 
 function updateMining() {
-    const elapsedHours = (Date.now() - startTime) / 3600000;
-    const mined = elapsedHours * ratePerHour;
 
-    document.getElementById("balance").textContent =
-        mined.toFixed(8) + " BTC";
+  const elapsedMilliseconds = Date.now() - Number(startTime);
 
-    document.getElementById("total").textContent =
-        mined.toFixed(8) + " BTC";
+  const elapsedHours = elapsedMilliseconds / (1000 * 60 * 60);
 
-    document.getElementById("today").textContent =
-        mined.toFixed(8) + " BTC";
+  const mined = elapsedHours * miningRate;
 
-    document.getElementById("reward").textContent =
-        mined.toFixed(8) + " BTC";
+  document.getElementById("miningTime").textContent =
+    elapsedHours.toFixed(2) + " hours";
 
-    document.getElementById("hours").textContent =
-        elapsedHours.toFixed(2);
+  document.getElementById("balance").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("totalMined").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("todayReward").textContent =
+    mined.toFixed(8) + " BTC";
+
+  document.getElementById("reward").textContent =
+    mined.toFixed(8) + " BTC";
 }
 
 updateMining();
+
 setInterval(updateMining, 1000);
+
 </script>
 
 </body>
