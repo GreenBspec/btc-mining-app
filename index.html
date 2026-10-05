@@ -26,7 +26,6 @@ header {
 
 header h1 {
   margin: 0 0 6px;
-  font-size: 25px;
 }
 
 header p {
@@ -63,13 +62,9 @@ header p {
   text-align: center;
 }
 
-.balance p {
-  margin-bottom: 5px;
-}
-
 .balance h2 {
   font-size: 30px;
-  margin: 10px 0 5px;
+  margin: 10px 0;
 }
 
 .status {
@@ -104,18 +99,26 @@ input {
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 5px;
+  margin-top: 7px;
   border: none;
   border-radius: 9px;
   background: #111827;
   color: white;
   font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
+button.secondary {
+  background: #6b7280;
+}
+
+.small {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.hidden {
+  display: none;
 }
 
 .withdrawal {
@@ -123,11 +126,6 @@ button:hover {
   padding: 14px 0;
   line-height: 1.7;
   word-break: break-word;
-}
-
-.small {
-  color: #6b7280;
-  font-size: 14px;
 }
 
 footer {
@@ -148,95 +146,175 @@ footer {
 
 <div class="container">
 
-  <div class="warning">
-    ⚠️ <strong>Demo Mode</strong><br>
-    This website simulates mining and withdrawals locally.
-    It does not perform real Bitcoin mining and does not transfer real BTC.
-  </div>
-
-  <div class="card">
-    <h2>👤 Welcome!</h2>
-    <p>Logged in as: <strong>User</strong></p>
-  </div>
-
-  <div class="card balance">
-    <p>BTC Balance</p>
-    <h2 id="balance">0.00000000 BTC</h2>
-    <p>Simulated balance</p>
-  </div>
-
-  <div class="card">
-    <h2>⛏️ Mining Status</h2>
-
-    <div class="stat">
-      <span>Status</span>
-      <strong class="status">● Active</strong>
-    </div>
-
-    <div class="stat">
-      <span>Mining Rate</span>
-      <strong id="rate">0.00010 BTC/hour</strong>
-    </div>
-
-    <div class="stat">
-      <span>Mining Time</span>
-      <strong id="miningTime">0.00 hours</strong>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>📊 Statistics</h2>
-
-    <div class="stat">
-      <span>Total Mined</span>
-      <strong id="totalMined">0.00000000 BTC</strong>
-    </div>
-
-    <div class="stat">
-      <span>Today's Reward</span>
-      <strong id="todayReward">0.00000000 BTC</strong>
-    </div>
-
-    <div class="stat">
-      <span>Users</span>
-      <strong>1</strong>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>💸 Withdrawal Request</h2>
-
-    <label>BTC Amount</label>
-    <input
-      type="number"
-      id="withdrawAmount"
-      placeholder="Example: 0.00010000"
-      step="0.00000001"
-      min="0"
-    >
-
-    <label>BTC Wallet Address</label>
-    <input
-      type="text"
-      id="walletAddress"
-      placeholder="Enter BTC wallet address"
-    >
-
-    <button onclick="requestWithdrawal()">
-      Request Withdrawal
-    </button>
+  <!-- LOGIN -->
+  <div id="loginScreen" class="card">
+    <h2>🔐 Login</h2>
 
     <p class="small">
-      Demo only. No real BTC is transferred.
+      Demo account system. Account information is stored only
+      in this browser.
     </p>
+
+    <label>Email</label>
+    <input
+      type="email"
+      id="loginEmail"
+      placeholder="Enter your email"
+    >
+
+    <label>Password</label>
+    <input
+      type="password"
+      id="loginPassword"
+      placeholder="Enter your password"
+    >
+
+    <button onclick="login()">
+      Login
+    </button>
+
+    <button class="secondary" onclick="showSignup()">
+      Create Account
+    </button>
   </div>
 
-  <div class="card">
-    <h2>📋 Withdrawal History</h2>
+  <!-- SIGNUP -->
+  <div id="signupScreen" class="card hidden">
+    <h2>👤 Create Account</h2>
 
-    <div id="withdrawalList">
-      <p class="small">No withdrawal requests yet.</p>
+    <p class="small">
+      Demo account only. Do not use a real password.
+    </p>
+
+    <label>Email</label>
+    <input
+      type="email"
+      id="signupEmail"
+      placeholder="Enter your email"
+    >
+
+    <label>Password</label>
+    <input
+      type="password"
+      id="signupPassword"
+      placeholder="Create a password"
+    >
+
+    <button onclick="signup()">
+      Create Account
+    </button>
+
+    <button class="secondary" onclick="showLogin()">
+      Back to Login
+    </button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="hidden">
+
+    <div class="warning">
+      ⚠️ <strong>Demo Mode</strong><br>
+      This website simulates mining and withdrawals locally.
+      It does not perform real Bitcoin mining and does not
+      transfer real BTC.
     </div>
+
+    <div class="card">
+      <h2>👤 Welcome!</h2>
+      <p>
+        Logged in as:
+        <strong id="userEmail">User</strong>
+      </p>
+
+      <button class="secondary" onclick="logout()">
+        Logout
+      </button>
+    </div>
+
+    <div class="card balance">
+      <p>BTC Balance</p>
+      <h2 id="balance">0.00000000 BTC</h2>
+      <p>Simulated balance</p>
+    </div>
+
+    <div class="card">
+      <h2>⛏️ Mining Status</h2>
+
+      <div class="stat">
+        <span>Status</span>
+        <strong class="status">● Active</strong>
+      </div>
+
+      <div class="stat">
+        <span>Mining Rate</span>
+        <strong>0.00010 BTC/hour</strong>
+      </div>
+
+      <div class="stat">
+        <span>Mining Time</span>
+        <strong id="miningTime">0.00 hours</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Statistics</h2>
+
+      <div class="stat">
+        <span>Total Mined</span>
+        <strong id="totalMined">0.00000000 BTC</strong>
+      </div>
+
+      <div class="stat">
+        <span>Today's Reward</span>
+        <strong id="todayReward">0.00000000 BTC</strong>
+      </div>
+
+      <div class="stat">
+        <span>Users</span>
+        <strong>1</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💸 Withdrawal Request</h2>
+
+      <label>BTC Amount</label>
+
+      <input
+        type="number"
+        id="withdrawAmount"
+        placeholder="Example: 0.00010000"
+        step="0.00000001"
+        min="0"
+      >
+
+      <label>BTC Wallet Address</label>
+
+      <input
+        type="text"
+        id="walletAddress"
+        placeholder="Enter BTC wallet address"
+      >
+
+      <button onclick="requestWithdrawal()">
+        Request Withdrawal
+      </button>
+
+      <p class="small">
+        Demo only. No real BTC is transferred.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>📋 Withdrawal History</h2>
+
+      <div id="withdrawalList">
+        <p class="small">
+          No withdrawal requests yet.
+        </p>
+      </div>
+    </div>
+
   </div>
 
 </div>
@@ -249,19 +327,166 @@ footer {
 
 const MINING_RATE = 0.00010;
 
-let startTime = localStorage.getItem("btcStartTime");
+let currentUser =
+  localStorage.getItem("btcCurrentUser");
 
-if (!startTime) {
-  startTime = Date.now();
-  localStorage.setItem("btcStartTime", startTime);
+function showSignup() {
+  document.getElementById("loginScreen")
+    .classList.add("hidden");
+
+  document.getElementById("signupScreen")
+    .classList.remove("hidden");
+}
+
+function showLogin() {
+  document.getElementById("signupScreen")
+    .classList.add("hidden");
+
+  document.getElementById("loginScreen")
+    .classList.remove("hidden");
+}
+
+function signup() {
+
+  const email =
+    document.getElementById("signupEmail")
+      .value.trim();
+
+  const password =
+    document.getElementById("signupPassword")
+      .value;
+
+  if (!email || !password) {
+    alert("Please enter an email and password.");
+    return;
+  }
+
+  if (password.length < 6) {
+    alert("Password must contain at least 6 characters.");
+    return;
+  }
+
+  const account = {
+    email: email,
+    password: password
+  };
+
+  localStorage.setItem(
+    "btcDemoAccount",
+    JSON.stringify(account)
+  );
+
+  alert("Demo account created.");
+
+  document.getElementById("signupEmail").value = "";
+  document.getElementById("signupPassword").value = "";
+
+  showLogin();
+}
+
+function login() {
+
+  const email =
+    document.getElementById("loginEmail")
+      .value.trim();
+
+  const password =
+    document.getElementById("loginPassword")
+      .value;
+
+  const saved =
+    JSON.parse(
+      localStorage.getItem("btcDemoAccount")
+    );
+
+  if (!saved) {
+    alert("No demo account found. Create an account first.");
+    return;
+  }
+
+  if (
+    email !== saved.email ||
+    password !== saved.password
+  ) {
+    alert("Incorrect email or password.");
+    return;
+  }
+
+  currentUser = email;
+
+  localStorage.setItem(
+    "btcCurrentUser",
+    currentUser
+  );
+
+  startMining();
+
+  showDashboard();
+}
+
+function logout() {
+
+  localStorage.removeItem("btcCurrentUser");
+
+  currentUser = null;
+
+  document.getElementById("dashboard")
+    .classList.add("hidden");
+
+  document.getElementById("loginScreen")
+    .classList.remove("hidden");
+}
+
+function showDashboard() {
+
+  document.getElementById("loginScreen")
+    .classList.add("hidden");
+
+  document.getElementById("signupScreen")
+    .classList.add("hidden");
+
+  document.getElementById("dashboard")
+    .classList.remove("hidden");
+
+  document.getElementById("userEmail")
+    .textContent = currentUser;
+
+  updateMining();
+  displayWithdrawals();
+}
+
+function startMining() {
+
+  let startTime =
+    localStorage.getItem("btcStartTime");
+
+  if (!startTime) {
+    localStorage.setItem(
+      "btcStartTime",
+      Date.now()
+    );
+  }
 }
 
 function getMiningData() {
 
-  const elapsedHours =
-    (Date.now() - Number(startTime)) / 3600000;
+  const startTime =
+    Number(
+      localStorage.getItem("btcStartTime")
+    );
 
-  const mined = elapsedHours * MINING_RATE;
+  if (!startTime) {
+    return {
+      hours: 0,
+      mined: 0
+    };
+  }
+
+  const elapsedHours =
+    (Date.now() - startTime) / 3600000;
+
+  const mined =
+    elapsedHours * MINING_RATE;
 
   return {
     hours: elapsedHours,
@@ -271,31 +496,38 @@ function getMiningData() {
 
 function updateMining() {
 
+  if (!currentUser) {
+    return;
+  }
+
   const data = getMiningData();
 
-  document.getElementById("balance").textContent =
+  document.getElementById("balance")
+    .textContent =
     data.mined.toFixed(8) + " BTC";
 
-  document.getElementById("totalMined").textContent =
+  document.getElementById("totalMined")
+    .textContent =
     data.mined.toFixed(8) + " BTC";
 
-  document.getElementById("todayReward").textContent =
+  document.getElementById("todayReward")
+    .textContent =
     data.mined.toFixed(8) + " BTC";
 
-  document.getElementById("miningTime").textContent =
+  document.getElementById("miningTime")
+    .textContent =
     data.hours.toFixed(2) + " hours";
-
-  document.getElementById("rate").textContent =
-    MINING_RATE.toFixed(5) + " BTC/hour";
 }
 
 function requestWithdrawal() {
 
   const amount =
-    document.getElementById("withdrawAmount").value.trim();
+    document.getElementById("withdrawAmount")
+      .value.trim();
 
   const wallet =
-    document.getElementById("walletAddress").value.trim();
+    document.getElementById("walletAddress")
+      .value.trim();
 
   if (!amount || Number(amount) <= 0) {
     alert("Please enter a valid BTC amount.");
@@ -324,8 +556,11 @@ function requestWithdrawal() {
     JSON.stringify(withdrawals)
   );
 
-  document.getElementById("withdrawAmount").value = "";
-  document.getElementById("walletAddress").value = "";
+  document.getElementById("withdrawAmount")
+    .value = "";
+
+  document.getElementById("walletAddress")
+    .value = "";
 
   displayWithdrawals();
 
@@ -343,32 +578,44 @@ function displayWithdrawals() {
     );
 
   if (withdrawals.length === 0) {
+
     list.innerHTML =
       '<p class="small">No withdrawal requests yet.</p>';
+
     return;
   }
 
   list.innerHTML = "";
 
-  withdrawals.slice().reverse().forEach(function(item) {
+  withdrawals.slice().reverse()
+    .forEach(function(item) {
 
-    const div = document.createElement("div");
+      const div =
+        document.createElement("div");
 
-    div.className = "withdrawal";
+      div.className = "withdrawal";
 
-    div.innerHTML = `
-      <strong>Amount:</strong> ${item.amount} BTC<br>
-      <strong>Wallet:</strong> ${item.wallet}<br>
-      <strong>Status:</strong> ${item.status}<br>
-      <strong>Date:</strong> ${item.date}
-    `;
+      div.innerHTML = `
+        <strong>Amount:</strong>
+        ${item.amount} BTC<br>
 
-    list.appendChild(div);
-  });
+        <strong>Wallet:</strong>
+        ${item.wallet}<br>
+
+        <strong>Status:</strong>
+        ${item.status}<br>
+
+        <strong>Date:</strong>
+        ${item.date}
+      `;
+
+      list.appendChild(div);
+    });
 }
 
-updateMining();
-displayWithdrawals();
+if (currentUser) {
+  showDashboard();
+}
 
 setInterval(updateMining, 1000);
 
