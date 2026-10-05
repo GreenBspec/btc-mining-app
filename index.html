@@ -7,17 +7,20 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
   background:#f4f6f8;
   color:#111827;
 }
+
 .container{
   max-width:600px;
   margin:auto;
   padding:20px;
 }
+
 header{
   background:#111827;
   color:white;
@@ -26,6 +29,7 @@ header{
   border-radius:12px;
   margin-bottom:20px;
 }
+
 .card{
   background:white;
   padding:20px;
@@ -33,10 +37,12 @@ header{
   margin-bottom:15px;
   box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
+
 .balance{
   background:#f7931a;
   color:white;
 }
+
 button{
   width:100%;
   padding:13px;
@@ -47,6 +53,7 @@ button{
   font-size:16px;
   margin-top:8px;
 }
+
 input{
   width:100%;
   padding:12px;
@@ -54,14 +61,20 @@ input{
   border:1px solid #ccc;
   border-radius:8px;
 }
+
 .danger{background:#dc2626}
 .success{background:#16a34a}
 .warning{background:#d97706}
+
 .small{
   font-size:13px;
   color:#6b7280;
 }
-.hidden{display:none}
+
+.hidden{
+  display:none;
+}
+
 .item{
   padding:12px;
   border-bottom:1px solid #ddd;
@@ -76,131 +89,245 @@ input{
 <header>
 <h1>₿ BTC Mining Dashboard</h1>
 <p>Mining Simulator</p>
+<p>⚠️ Demo Mode</p>
 </header>
 
 <!-- LOGIN -->
+
 <div id="loginScreen" class="card">
+
 <h2>🔐 Login</h2>
 
-<input id="loginEmail" type="email" placeholder="Email">
+<input
+id="loginEmail"
+type="email"
+placeholder="Email">
 
-<input id="loginPassword" type="password" placeholder="Password">
+<input
+id="loginPassword"
+type="password"
+placeholder="Password">
 
 <button onclick="login()">Login</button>
 
-<button onclick="showRegister()">Create Account</button>
+<button onclick="showRegister()">
+Create Account
+</button>
 
-<button class="warning" onclick="showAdminLogin()">🔧 Admin Login</button>
+<button
+class="warning"
+onclick="showAdminLogin()">
+🔧 Admin Login
+</button>
+
 </div>
+
 
 <!-- REGISTER -->
+
 <div id="registerScreen" class="card hidden">
+
 <h2>👤 Create Account</h2>
 
-<input id="registerEmail" type="email" placeholder="Email">
+<input
+id="registerEmail"
+type="email"
+placeholder="Email">
 
-<input id="registerPassword" type="password" placeholder="Password">
+<input
+id="registerPassword"
+type="password"
+placeholder="Password">
 
-<button onclick="register()">Create Account</button>
+<button onclick="register()">
+Create Account
+</button>
 
-<button class="warning" onclick="showLogin()">Back to Login</button>
+<button
+class="warning"
+onclick="showLogin()">
+Back to Login
+</button>
+
 </div>
 
+
 <!-- ADMIN LOGIN -->
+
 <div id="adminLoginScreen" class="card hidden">
+
 <h2>🔧 Admin Login</h2>
 
-<input id="adminPassword" type="password" placeholder="Admin Password">
+<input
+id="adminPassword"
+type="password"
+placeholder="Admin Password">
 
-<button onclick="adminLogin()">Enter Admin Dashboard</button>
+<button onclick="adminLogin()">
+Enter Admin Dashboard
+</button>
 
-<button class="warning" onclick="showLogin()">Back</button>
+<button
+class="warning"
+onclick="showLogin()">
+Back
+</button>
 
 <p class="small">
 Demo admin password: admin123
 </p>
+
 </div>
 
+
 <!-- USER DASHBOARD -->
+
 <div id="dashboard" class="hidden">
 
 <div class="card">
-<h2>👤 Welcome!</h2>
-<p>Logged in as: <strong id="userEmail"></strong></p>
 
-<button class="danger" onclick="logout()">Logout</button>
+<h2>👤 Welcome!</h2>
+
+<p>
+Logged in as:
+<strong id="userEmail"></strong>
+</p>
+
+<button
+class="danger"
+onclick="logout()">
+Logout
+</button>
+
 </div>
+
 
 <div class="card balance">
+
 <h2>BTC Balance</h2>
-<h1 id="balance">0.00000000 BTC</h1>
-<p>Simulated balance</p>
+
+<h1 id="balance">
+0.00000000 BTC
+</h1>
+
+<p>
+Simulated balance
+</p>
+
 </div>
 
+
 <div class="card">
+
 <h2>⛏️ Mining Status</h2>
 
-<p>Status: <strong>🟢 Active</strong></p>
+<p>
+Status:
+<strong id="miningStatus">
+🟢 Active
+</strong>
+</p>
 
 <p>
 Mining Rate:
-<strong>0.00010 BTC/hour</strong>
+<strong>
+0.00010 BTC/hour
+</strong>
 </p>
 
 <p>
 Mining Time:
-<strong id="miningTime">0.00</strong> hours
+<strong id="miningTime">
+0.00
+</strong>
+hours
 </p>
+
 </div>
 
+
 <div class="card">
+
 <h2>📊 Statistics</h2>
 
-<p>Total Mined:
-<strong id="totalMined">0.00000000 BTC</strong>
+<p>
+Total Mined:
+<strong id="totalMined">
+0.00000000 BTC
+</strong>
 </p>
 
-<p>Today's Reward:
-<strong id="todayReward">0.00000000 BTC</strong>
+<p>
+Today's Reward:
+<strong id="todayReward">
+0.00000000 BTC
+</strong>
 </p>
+
 </div>
 
+
 <div class="card">
+
 <h2>💸 Withdraw BTC</h2>
 
-<input id="withdrawAddress" placeholder="Bitcoin address">
+<input
+id="withdrawAddress"
+placeholder="Bitcoin address">
 
-<input id="withdrawAmount" type="number" step="0.00000001" placeholder="Amount BTC">
+<input
+id="withdrawAmount"
+type="number"
+step="0.00000001"
+placeholder="Amount BTC">
 
-<button onclick="withdraw()">Request Withdrawal</button>
+<button onclick="withdraw()">
+Request Withdrawal
+</button>
 
 <p class="small">
 Demo withdrawals are recorded locally only.
 </p>
+
 </div>
 
+
 <div class="card">
+
 <h2>📜 Withdrawal History</h2>
 
 <div id="withdrawalHistory">
 No withdrawal requests.
 </div>
+
 </div>
 
 </div>
+
 
 <!-- ADMIN DASHBOARD -->
+
 <div id="adminDashboard" class="hidden">
 
 <div class="card">
+
 <h2>🔧 Admin Dashboard</h2>
 
-<p><strong>Demo Administrator</strong></p>
+<p>
+<strong>Demo Administrator</strong>
+</p>
 
-<button class="danger" onclick="adminLogout()">Logout Admin</button>
+<button
+class="danger"
+onclick="adminLogout()">
+Logout Admin
+</button>
+
 </div>
 
+
 <div class="card">
+
 <h2>📊 Admin Statistics</h2>
 
 <p>
@@ -210,445 +337,936 @@ Registered Users:
 
 <p>
 Total Simulated BTC:
-<strong id="adminBTC">0.00000000 BTC</strong>
+<strong id="adminBTC">
+0.00000000 BTC
+</strong>
 </p>
 
 <p>
 Pending Withdrawals:
 <strong id="adminPending">0</strong>
 </p>
+
 </div>
 
+
 <div class="card">
+
 <h2>👥 Users</h2>
 
 <div id="adminUserList">
 No users found.
 </div>
+
 </div>
 
+
 <div class="card">
+
 <h2>💸 Withdrawal Requests</h2>
 
 <div id="adminWithdrawals">
 No withdrawal requests.
 </div>
-</div>
 
 </div>
 
 </div>
+
+</div>
+
 
 <script>
 
 const RATE = 0.00010;
 
-let users = JSON.parse(localStorage.getItem("btcUsers") || "[]");
+
+/* LOAD DATA */
+
+let users =
+JSON.parse(
+localStorage.getItem("btcUsers") || "[]"
+);
 
 let withdrawals =
-JSON.parse(localStorage.getItem("btcWithdrawals") || "[]");
+JSON.parse(
+localStorage.getItem("btcWithdrawals") || "[]"
+);
 
 let currentUser =
 localStorage.getItem("btcLoggedIn") || "";
 
-function saveUsers(){
-  localStorage.setItem("btcUsers",JSON.stringify(users));
+
+/* RECOVER OLD DEMO ACCOUNT */
+
+if(users.length === 0){
+
+  const oldEmail =
+    localStorage.getItem("btcDemoAccount");
+
+  const oldBalance =
+    Number(
+      localStorage.getItem("btcBalance") || 0
+    );
+
+  const oldTotal =
+    Number(
+      localStorage.getItem("totalMined")
+      || oldBalance
+    );
+
+  const oldStart =
+    Number(
+      localStorage.getItem("miningStart")
+      || Date.now()
+    );
+
+  if(oldEmail){
+
+    users.push({
+      email:oldEmail,
+      password:"",
+      balance:oldBalance,
+      totalMined:oldTotal,
+      miningStart:oldStart,
+      active:true
+    });
+
+  }
+
 }
 
+
+/* SAVE USERS */
+
+function saveUsers(){
+
+  localStorage.setItem(
+    "btcUsers",
+    JSON.stringify(users)
+  );
+
+}
+
+
+/* SAVE WITHDRAWALS */
+
 function saveWithdrawals(){
+
   localStorage.setItem(
     "btcWithdrawals",
     JSON.stringify(withdrawals)
   );
+
 }
+
+
+/* SCREEN CONTROL */
 
 function hideAll(){
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("registerScreen").classList.add("hidden");
-  document.getElementById("adminLoginScreen").classList.add("hidden");
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("adminDashboard").classList.add("hidden");
+
+  document
+  .getElementById("loginScreen")
+  .classList.add("hidden");
+
+  document
+  .getElementById("registerScreen")
+  .classList.add("hidden");
+
+  document
+  .getElementById("adminLoginScreen")
+  .classList.add("hidden");
+
+  document
+  .getElementById("dashboard")
+  .classList.add("hidden");
+
+  document
+  .getElementById("adminDashboard")
+  .classList.add("hidden");
+
 }
+
 
 function showLogin(){
+
   hideAll();
-  document.getElementById("loginScreen").classList.remove("hidden");
+
+  document
+  .getElementById("loginScreen")
+  .classList.remove("hidden");
+
 }
+
 
 function showRegister(){
+
   hideAll();
-  document.getElementById("registerScreen").classList.remove("hidden");
+
+  document
+  .getElementById("registerScreen")
+  .classList.remove("hidden");
+
 }
 
+
 function showAdminLogin(){
+
   hideAll();
-  document.getElementById("adminLoginScreen").classList.remove("hidden");
+
+  document
+  .getElementById("adminLoginScreen")
+  .classList.remove("hidden");
+
 }
+
+
+/* REGISTER */
 
 function register(){
 
   const email =
-    document.getElementById("registerEmail").value.trim();
+    document
+    .getElementById("registerEmail")
+    .value
+    .trim();
 
   const password =
-    document.getElementById("registerPassword").value;
+    document
+    .getElementById("registerPassword")
+    .value;
 
   if(!email || !password){
-    alert("Enter email and password.");
+
+    alert(
+      "Enter email and password."
+    );
+
     return;
   }
 
-  if(users.some(u => u.email === email)){
-    alert("Account already exists.");
+
+  if(
+    users.some(
+      u => u.email === email
+    )
+  ){
+
+    alert(
+      "Account already exists."
+    );
+
     return;
   }
+
 
   users.push({
+
     email:email,
+
     password:password,
+
     balance:0,
+
     totalMined:0,
+
     miningStart:Date.now(),
+
     active:true
+
   });
+
 
   saveUsers();
 
-  alert("Account created.");
+  alert(
+    "Account created successfully."
+  );
 
-  document.getElementById("loginEmail").value=email;
+  document
+  .getElementById("loginEmail")
+  .value=email;
 
   showLogin();
+
 }
+
+
+/* LOGIN */
 
 function login(){
 
   const email =
-    document.getElementById("loginEmail").value.trim();
+    document
+    .getElementById("loginEmail")
+    .value
+    .trim();
 
   const password =
-    document.getElementById("loginPassword").value;
+    document
+    .getElementById("loginPassword")
+    .value;
 
-  const user =
+
+  let user =
     users.find(
-      u => u.email === email &&
-           u.password === password
+      u =>
+      u.email === email &&
+      u.password === password
     );
 
+
+  /* RECOVER OLD ACCOUNT */
+
   if(!user){
-    alert("Invalid email or password.");
+
+    user =
+      users.find(
+        u => u.email === email
+      );
+
+    if(
+      user &&
+      user.password === ""
+    ){
+
+      user.password =
+        password;
+
+      saveUsers();
+
+    }
+
+  }
+
+
+  if(!user){
+
+    alert(
+      "Invalid email or password."
+    );
+
     return;
   }
 
-  currentUser=email;
 
-  localStorage.setItem("btcLoggedIn",email);
+  currentUser = email;
+
+  localStorage.setItem(
+    "btcLoggedIn",
+    email
+  );
+
 
   showDashboard();
+
 }
+
+
+/* CURRENT USER */
+
+function getCurrentUser(){
+
+  return users.find(
+    u =>
+    u.email === currentUser
+  );
+
+}
+
+
+/* USER DASHBOARD */
 
 function showDashboard(){
 
   hideAll();
 
   document
-    .getElementById("dashboard")
-    .classList.remove("hidden");
+  .getElementById("dashboard")
+  .classList.remove("hidden");
 
   updateDashboard();
+
 }
 
-function getCurrentUser(){
 
-  return users.find(
-    u => u.email === currentUser
-  );
-}
+/* UPDATE DASHBOARD */
 
 function updateDashboard(){
 
-  const user=getCurrentUser();
+  const user =
+    getCurrentUser();
+
 
   if(!user){
+
     showLogin();
+
     return;
   }
 
-  const elapsed =
-    (Date.now()-user.miningStart)/3600000;
 
-  user.totalMined =
-    elapsed * RATE;
+  let elapsed = 0;
 
-  user.balance =
-    user.totalMined;
+
+  if(user.active){
+
+    elapsed =
+      (
+        Date.now()
+        -
+        user.miningStart
+      )
+      /
+      3600000;
+
+    user.totalMined =
+      user.totalMined
+      +
+      (
+        elapsed * RATE
+        -
+        user.totalMined
+      );
+
+    user.balance =
+      user.totalMined;
+
+  }
+
 
   saveUsers();
 
-  document.getElementById("userEmail").textContent=user.email;
 
-  document.getElementById("balance").textContent =
-    user.balance.toFixed(8)+" BTC";
+  document
+  .getElementById("userEmail")
+  .textContent =
+    user.email;
 
-  document.getElementById("totalMined").textContent =
-    user.totalMined.toFixed(8)+" BTC";
 
-  document.getElementById("todayReward").textContent =
-    user.totalMined.toFixed(8)+" BTC";
+  document
+  .getElementById("balance")
+  .textContent =
+    Number(user.balance)
+    .toFixed(8)
+    +
+    " BTC";
 
-  document.getElementById("miningTime").textContent =
+
+  document
+  .getElementById("totalMined")
+  .textContent =
+    Number(user.totalMined)
+    .toFixed(8)
+    +
+    " BTC";
+
+
+  document
+  .getElementById("todayReward")
+  .textContent =
+    Number(user.totalMined)
+    .toFixed(8)
+    +
+    " BTC";
+
+
+  document
+  .getElementById("miningTime")
+  .textContent =
     elapsed.toFixed(2);
 
+
+  document
+  .getElementById("miningStatus")
+  .textContent =
+    user.active
+    ?
+    "🟢 Active"
+    :
+    "🔴 Paused";
+
+
   displayHistory();
+
 }
+
+
+/* WITHDRAW */
 
 function withdraw(){
 
   const address =
-    document.getElementById("withdrawAddress").value.trim();
+    document
+    .getElementById("withdrawAddress")
+    .value
+    .trim();
 
   const amount =
-    Number(document.getElementById("withdrawAmount").value);
+    Number(
+      document
+      .getElementById("withdrawAmount")
+      .value
+    );
 
-  const user=getCurrentUser();
+
+  const user =
+    getCurrentUser();
+
 
   if(!address || !amount){
-    alert("Enter Bitcoin address and amount.");
+
+    alert(
+      "Enter Bitcoin address and amount."
+    );
+
     return;
   }
+
 
   if(amount <= 0){
-    alert("Amount must be greater than zero.");
+
+    alert(
+      "Amount must be greater than zero."
+    );
+
     return;
   }
 
+
   if(amount > user.balance){
-    alert("Insufficient simulated BTC.");
+
+    alert(
+      "Insufficient simulated BTC."
+    );
+
     return;
   }
+
 
   user.balance -= amount;
 
+
   withdrawals.push({
+
     email:user.email,
+
     address:address,
+
     amount:amount,
+
     status:"Pending",
+
     date:new Date().toLocaleString()
+
   });
 
+
   saveUsers();
+
   saveWithdrawals();
 
-  document.getElementById("withdrawAddress").value="";
-  document.getElementById("withdrawAmount").value="";
 
-  alert("Demo withdrawal request created.");
+  document
+  .getElementById("withdrawAddress")
+  .value="";
+
+
+  document
+  .getElementById("withdrawAmount")
+  .value="";
+
+
+  alert(
+    "Demo withdrawal request created."
+  );
+
 
   updateDashboard();
+
 }
+
+
+/* HISTORY */
 
 function displayHistory(){
 
   const box =
-    document.getElementById("withdrawalHistory");
+    document
+    .getElementById("withdrawalHistory");
+
 
   const mine =
     withdrawals.filter(
-      w => w.email === currentUser
+      w =>
+      w.email === currentUser
     );
 
-  if(mine.length===0){
-    box.innerHTML="No withdrawal requests.";
+
+  if(mine.length === 0){
+
+    box.innerHTML =
+      "No withdrawal requests.";
+
     return;
   }
 
-  box.innerHTML=mine.map(w => `
-    <div class="item">
-      <strong>${w.amount.toFixed(8)} BTC</strong><br>
-      Address: ${w.address}<br>
-      Date: ${w.date}<br>
-      Status: <strong>${w.status}</strong>
-    </div>
-  `).join("");
+
+  box.innerHTML =
+    mine.map(
+      w => `
+
+      <div class="item">
+
+      <strong>
+      ${Number(w.amount).toFixed(8)} BTC
+      </strong>
+
+      <br>
+
+      Address:
+      ${w.address}
+
+      <br>
+
+      Date:
+      ${w.date}
+
+      <br>
+
+      Status:
+      <strong>
+      ${w.status}
+      </strong>
+
+      </div>
+
+      `
+    ).join("");
+
 }
+
+
+/* LOGOUT */
 
 function logout(){
 
-  localStorage.removeItem("btcLoggedIn");
+  localStorage.removeItem(
+    "btcLoggedIn"
+  );
 
   currentUser="";
 
   showLogin();
+
 }
+
+
+/* ADMIN LOGIN */
 
 function adminLogin(){
 
   const password =
-    document.getElementById("adminPassword").value;
+    document
+    .getElementById("adminPassword")
+    .value;
+
 
   if(password !== "admin123"){
-    alert("Incorrect admin password.");
+
+    alert(
+      "Incorrect admin password."
+    );
+
     return;
   }
 
+
   showAdminDashboard();
+
 }
+
+
+/* ADMIN DASHBOARD */
 
 function showAdminDashboard(){
 
   hideAll();
 
   document
-    .getElementById("adminDashboard")
-    .classList.remove("hidden");
+  .getElementById("adminDashboard")
+  .classList.remove("hidden");
 
   displayAdmin();
+
 }
+
+
+/* ADMIN DISPLAY */
 
 function displayAdmin(){
 
-  document.getElementById("adminUsers").textContent =
+  document
+  .getElementById("adminUsers")
+  .textContent =
     users.length;
+
 
   const totalBTC =
     users.reduce(
-      (sum,u)=>sum+(Number(u.balance)||0),
+      (sum,u) =>
+      sum +
+      (
+        Number(u.balance) || 0
+      ),
       0
     );
 
-  document.getElementById("adminBTC").textContent =
-    totalBTC.toFixed(8)+" BTC";
+
+  document
+  .getElementById("adminBTC")
+  .textContent =
+    totalBTC.toFixed(8)
+    +
+    " BTC";
+
 
   const pending =
     withdrawals.filter(
-      w=>w.status==="Pending"
+      w =>
+      w.status === "Pending"
     ).length;
 
-  document.getElementById("adminPending").textContent =
+
+  document
+  .getElementById("adminPending")
+  .textContent =
     pending;
 
-  const userBox =
-    document.getElementById("adminUserList");
 
-  if(users.length===0){
-    userBox.innerHTML="No users found.";
+  /* USERS */
+
+  const userBox =
+    document
+    .getElementById("adminUserList");
+
+
+  if(users.length === 0){
+
+    userBox.innerHTML =
+      "No users found.";
+
   }else{
 
-    userBox.innerHTML=users.map((u,index)=>`
+    userBox.innerHTML =
+      users.map(
+        (u,index) => `
 
-      <div class="item">
+        <div class="item">
 
-        <strong>${u.email}</strong>
+        <strong>
+        ${u.email}
+        </strong>
 
         <br>
+
         Balance:
-        ${Number(u.balance).toFixed(8)} BTC
+        ${Number(u.balance).toFixed(8)}
+        BTC
 
         <br>
+
         Mining:
-        ${u.active ? "🟢 Active" : "🔴 Paused"}
+        ${
+          u.active
+          ?
+          "🟢 Active"
+          :
+          "🔴 Paused"
+        }
 
         <button
-          class="warning"
-          onclick="toggleMining(${index})">
-          ${u.active ? "Pause Mining" : "Start Mining"}
+        class="warning"
+        onclick="toggleMining(${index})">
+
+        ${
+          u.active
+          ?
+          "Pause Mining"
+          :
+          "Start Mining"
+        }
+
         </button>
 
-      </div>
+        </div>
 
-    `).join("");
+        `
+      ).join("");
+
   }
 
+
+  /* WITHDRAWALS */
+
   const withdrawalBox =
-    document.getElementById("adminWithdrawals");
+    document
+    .getElementById("adminWithdrawals");
 
-  if(withdrawals.length===0){
 
-    withdrawalBox.innerHTML=
+  if(withdrawals.length === 0){
+
+    withdrawalBox.innerHTML =
       "No withdrawal requests.";
 
   }else{
 
     withdrawalBox.innerHTML =
-      withdrawals.map((w,index)=>`
+      withdrawals.map(
+        (w,index) => `
 
-      <div class="item">
+        <div class="item">
 
-        <strong>${w.amount.toFixed(8)} BTC</strong>
-
-        <br>
-        User: ${w.email}
-
-        <br>
-        Address: ${w.address}
+        <strong>
+        ${Number(w.amount).toFixed(8)} BTC
+        </strong>
 
         <br>
-        Date: ${w.date}
+
+        User:
+        ${w.email}
 
         <br>
+
+        Address:
+        ${w.address}
+
+        <br>
+
+        Date:
+        ${w.date}
+
+        <br>
+
         Status:
-        <strong>${w.status}</strong>
+        <strong>
+        ${w.status}
+        </strong>
 
         ${
-          w.status==="Pending"
-          ? `
+          w.status === "Pending"
+          ?
+          `
+
           <button
-            class="success"
-            onclick="updateWithdrawal(${index},'Approved')">
-            Approve Demo Withdrawal
+          class="success"
+          onclick="updateWithdrawal(${index},'Approved')">
+
+          Approve Demo Withdrawal
+
           </button>
 
           <button
-            class="danger"
-            onclick="updateWithdrawal(${index},'Rejected')">
-            Reject Demo Withdrawal
+          class="danger"
+          onclick="updateWithdrawal(${index},'Rejected')">
+
+          Reject Demo Withdrawal
+
           </button>
+
           `
-          : ""
+          :
+          ""
         }
 
-      </div>
+        </div>
 
-    `).join("");
+        `
+      ).join("");
+
   }
+
 }
+
+
+/* PAUSE / START MINING */
 
 function toggleMining(index){
 
-  users[index].active =
-    !users[index].active;
+  const user =
+    users[index];
+
+
+  user.active =
+    !user.active;
+
+
+  if(user.active){
+
+    user.miningStart =
+      Date.now();
+
+  }
+
 
   saveUsers();
 
   displayAdmin();
+
 }
 
-function updateWithdrawal(index,status){
 
-  withdrawals[index].status=status;
+/* APPROVE / REJECT */
+
+function updateWithdrawal(
+  index,
+  status
+){
+
+  withdrawals[index].status =
+    status;
+
 
   saveWithdrawals();
 
   displayAdmin();
+
 }
+
+
+/* ADMIN LOGOUT */
 
 function adminLogout(){
 
+  document
+  .getElementById("adminPassword")
+  .value="";
+
   showLogin();
 
-  document.getElementById("adminPassword").value="";
 }
 
-setInterval(()=>{
 
-  if(currentUser){
+/* AUTO UPDATE */
 
-    updateDashboard();
+setInterval(
 
-  }
+  function(){
 
-},1000);
+    if(currentUser){
+
+      updateDashboard();
+
+    }
+
+  },
+
+  1000
+
+);
+
+
+/* START */
 
 if(currentUser){
 
