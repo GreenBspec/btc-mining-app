@@ -374,4 +374,953 @@ Total Simulated BTC:
 </p>
 
 <p class="stat">
-Pending Withdraw
+Pending Withdrawals:
+<strong id="pendingWithdrawals">0</strong>
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>💸 Pending Withdrawals</h2>
+
+<div id="adminWithdrawals"></div>
+
+</div>
+
+<div class="card">
+
+<h2>👥 Users</h2>
+
+<div id="usersList"></div>
+
+</div>
+
+</div>
+
+<div class="footer">
+BTC Mining Dashboard • Demo Mode
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const MINING_RATE = 0.00010;
+const MIN_WITHDRAWAL = 0.00010000;
+
+
+/* -------------------------
+   STORAGE
+------------------------- */
+
+function getUsers(){
+    try{
+        return JSON.parse(localStorage.getItem("btcUsers") || "[]");
+    }catch(e){
+        return [];
+    }
+}
+
+function saveUsers(users){
+    localStorage.setItem("btcUsers", JSON.stringify(users));
+}
+
+
+/* -------------------------
+   SCREEN HELPERS
+------------------------- */
+
+function hideAllScreens(){
+
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("createScreen").classList.add("hidden");
+    document.getElementById("adminLoginScreen").classList.add("hidden");
+    document.getElementById("dashboard").classList.add("hidden");
+    document.getElementById("adminDashboard").classList.add("hidden");
+
+}
+
+function showLogin(){
+
+    hideAllScreens();
+
+    document.getElementById("loginScreen")
+        .classList.remove("hidden");
+
+}
+
+function showCreate(){
+
+    hideAllScreens();
+
+    document.getElementById("createScreen")
+        .classList.remove("hidden");
+
+}
+
+function showAdminLogin(){
+
+    hideAllScreens();
+
+    document.getElementById("adminLoginScreen")
+        .classList.remove("hidden");
+
+}
+
+
+/* -------------------------
+   CREATE ACCOUNT
+------------------------- */
+
+function createAccount(){
+
+    const email =
+        document.getElementById("createEmail").value.trim();
+
+    const password =
+        document.getElementById("createPassword").value;
+
+    const message =
+        document.getElementById("createMessage");
+
+    message.textContent = "";
+
+    if(!email || !password){
+
+        message.textContent =
+            "Please enter an email and password.";
+
+        return;
+    }
+
+    if(password.length < 4){
+
+        message.textContent =
+            "Password must contain at least 4 characters.";
+
+        return;
+    }
+
+    const users = getUsers();
+
+    const exists = users.some(function(user){
+
+        return String(user.email).toLowerCase()
+            === email.toLowerCase();
+
+    });
+
+    if(exists){
+
+        message.textContent =
+            "Account already exists.";
+
+        return;
+    }
+
+    users.push({
+        email: email,
+        password: password,
+        balance: 0,
+        mining: false,
+        miningStartTime: null,
+        withdrawals: []
+    });
+
+    saveUsers(users);
+
+    message.textContent =
+        "Account created successfully.";
+
+    document.getElementById("createEmail").value = "";
+    document.getElementById("createPassword").value = "";
+
+    setTimeout(function(){
+        showLogin();
+    },800);
+
+}
+
+
+/* -------------------------
+   LOGIN
+------------------------- */
+
+function login(){
+
+    const email =
+        document.getElementById("loginEmail").value.trim();
+
+    const password =
+        document.getElementById("loginPassword").value;
+
+    const message =
+        document.getElementById("loginMessage");
+
+    message.textContent = "";
+
+    const users = getUsers();
+
+    const user = users.find(function(item){
+
+        return String(item.email).toLowerCase()
+            === email.toLowerCase()
+            && item.password === password;
+
+    });
+
+    if(!user){
+
+        message.textContent =
+            "Account not found or password incorrect.";
+
+        return;
+    }
+
+    localStorage.setItem("loggedInUser", user.email);
+
+    showDashboard();
+
+}
+
+
+/* -------------------------
+   USER DASHBOARD
+------------------------- */
+
+function showDashboard(){
+
+    const email =
+        localStorage.getItem("loggedInUser");
+
+    if(!email){
+
+        showLogin();
+        return;
+    }
+
+    hideAllScreens();
+
+    document.getElementById("dashboard")
+        .classList.remove("hidden");
+
+    document.getElementById("userEmail")
+        .textContent = email;
+
+    updateDashboard();
+
+}
+
+
+function logout(){
+
+    localStorage.removeItem("loggedInUser");
+
+    showLogin();
+
+}
+
+
+/* -------------------------
+   MINING
+------------------------- */
+
+function updateDashboard(){
+
+    const email =
+        localStorage.getItem("loggedInUser");
+
+    const users = getUsers();
+
+    const user = users.find(function(item){
+
+        return String(item.email).toLowerCase()
+            === String(email).toLowerCase();
+
+    });
+
+    if(!user){
+
+        logout();
+        return;
+    }
+
+    if(typeof user.balance !== "number"){
+        user.balance = Number(user.balance || 0);
+    }
+
+    if(!Array.isArray(user.withdrawals)){
+        user.withdrawals = [];
+    }
+
+    if(user.mining && user.miningStartTime){
+
+        const hours =
+            (Date.now() - user.miningStartTime) / 3600000;
+
+        if(hours > 0){
+
+            user.balance += hours * MINING_RATE;
+
+            user.miningStartTime = Date.now();
+
+            saveUsers(users);
+        }
+    }
+
+    document.getElementById("balance")
+        .textContent =
+        user.balance.toFixed(8) + " BTC";
+
+    const status =
+        document.getElementById("miningStatus");
+
+    const button =
+        document.getElementById("miningBtn");
+
+    if(user.mining){
+
+        status.textContent = "Status: 🟢 Active";
+        button.textContent = "⏸ Pause Mining";
+
+    }else{
+
+        status.textContent = "Status: 🔴 Paused";
+        button.textContent = "▶ Start Mining";
+
+    }
+
+    displayHistory(user);
+
+}
+
+
+function toggleMining(){
+
+    const email =
+        localStorage.getItem("loggedInUser");
+
+    const users = getUsers();
+
+    const user = users.find(function(item){
+
+        return String(item.email).toLowerCase()
+            === String(email).toLowerCase();
+
+    });
+
+    if(!user)return;
+
+    if(user.mining){
+
+        if(user.miningStartTime){
+
+            const hours =
+                (Date.now() - user.miningStartTime)
+                / 3600000;
+
+            user.balance =
+                Number(user.balance || 0)
+                + hours * MINING_RATE;
+        }
+
+        user.mining = false;
+        user.miningStartTime = null;
+
+    }else{
+
+        user.mining = true;
+        user.miningStartTime = Date.now();
+
+    }
+
+    saveUsers(users);
+
+    updateDashboard();
+
+}
+
+
+/* -------------------------
+   WITHDRAWAL
+------------------------- */
+
+function withdraw(){
+
+    const email =
+        localStorage.getItem("loggedInUser");
+
+    const address =
+        document.getElementById("walletAddress")
+        .value.trim();
+
+    const amount =
+        Number(
+            document.getElementById("withdrawAmount").value
+        );
+
+    const message =
+        document.getElementById("withdrawMessage");
+
+    const users = getUsers();
+
+    const user = users.find(function(item){
+
+        return String(item.email).toLowerCase()
+            === String(email).toLowerCase();
+
+    });
+
+    if(!user)return;
+
+    if(!address){
+
+        message.textContent =
+            "Please enter a wallet address.";
+
+        return;
+    }
+
+    if(!amount || amount < MIN_WITHDRAWAL){
+
+        message.textContent =
+            "Minimum withdrawal is 0.00010000 BTC.";
+
+        return;
+    }
+
+    if(amount > Number(user.balance || 0)){
+
+        message.textContent =
+            "Insufficient simulated BTC balance.";
+
+        return;
+    }
+
+    user.balance -= amount;
+
+    if(!Array.isArray(user.withdrawals)){
+        user.withdrawals = [];
+    }
+
+    user.withdrawals.push({
+
+        amount: amount,
+        address: address,
+        date: new Date().toLocaleString(),
+        status: "Pending"
+
+    });
+
+    saveUsers(users);
+
+    document.getElementById("walletAddress").value = "";
+    document.getElementById("withdrawAmount").value = "";
+
+    message.textContent =
+        "Withdrawal request submitted in Demo Mode.";
+
+    updateDashboard();
+
+}
+
+
+/* -------------------------
+   HISTORY
+------------------------- */
+
+function displayHistory(user){
+
+    const box =
+        document.getElementById("withdrawalHistory");
+
+    if(!user.withdrawals ||
+       user.withdrawals.length === 0){
+
+        box.innerHTML =
+            '<p class="small">No withdrawals yet.</p>';
+
+        return;
+    }
+
+    box.innerHTML =
+        user.withdrawals.map(function(w){
+
+            let cls = "pending";
+            let icon = "🟡";
+
+            const status =
+                String(w.status || "Pending");
+
+            if(status.toLowerCase()
+                .startsWith("approved")){
+
+                cls = "approved";
+                icon = "✅";
+            }
+
+            if(status.toLowerCase()
+                .startsWith("rejected")){
+
+                cls = "rejected";
+                icon = "❌";
+            }
+
+            return `
+            <div class="row">
+
+            <strong>
+            💰 ${Number(w.amount || 0).toFixed(8)} BTC
+            </strong>
+
+            <br><br>
+
+            📍 Address:
+            ${escapeHTML(w.address || "Not recorded")}
+
+            <br>
+
+            📅 Date:
+            ${escapeHTML(w.date || "Unknown")}
+
+            <br>
+
+            <span class="${cls}">
+            ${icon} Status: ${escapeHTML(status)}
+            </span>
+
+            </div>
+            `;
+
+        }).join("");
+
+}
+
+
+/* -------------------------
+   ADMIN
+------------------------- */
+
+function adminLogin(){
+
+    const password =
+        document.getElementById("adminPassword").value;
+
+    const message =
+        document.getElementById("adminMessage");
+
+    if(password !== "admin123"){
+
+        message.textContent =
+            "Incorrect admin password.";
+
+        return;
+    }
+
+    localStorage.setItem("adminLoggedIn","true");
+
+    hideAllScreens();
+
+    document.getElementById("adminDashboard")
+        .classList.remove("hidden");
+
+    updateAdmin();
+
+}
+
+
+function openAdmin(){
+
+    showAdminLogin();
+
+}
+
+
+function adminLogout(){
+
+    localStorage.removeItem("adminLoggedIn");
+
+    showLogin();
+
+}
+
+
+function updateAdmin(){
+
+    const users = getUsers();
+
+    let total = 0;
+    let pending = 0;
+
+    users.forEach(function(user){
+
+        total += Number(user.balance || 0);
+
+        (user.withdrawals || []).forEach(function(w){
+
+            if(String(w.status).toLowerCase()
+                === "pending"){
+
+                pending++;
+            }
+
+        });
+
+    });
+
+    document.getElementById("registeredUsers")
+        .textContent = users.length;
+
+    document.getElementById("totalBTC")
+        .textContent = total.toFixed(8) + " BTC";
+
+    document.getElementById("pendingWithdrawals")
+        .textContent = pending;
+
+    displayAdminWithdrawals(users);
+    displayUsers(users);
+
+}
+
+
+/* -------------------------
+   ADMIN USERS
+------------------------- */
+
+function displayUsers(users){
+
+    const box =
+        document.getElementById("usersList");
+
+    if(users.length === 0){
+
+        box.innerHTML =
+            "<p>No registered users.</p>";
+
+        return;
+    }
+
+    box.innerHTML =
+        users.map(function(user){
+
+            return `
+            <div class="row">
+
+            <strong>
+            ${escapeHTML(user.email || "Unknown")}
+            </strong>
+
+            <br>
+
+            Balance:
+            ${Number(user.balance || 0).toFixed(8)} BTC
+
+            <br>
+
+            Mining:
+            ${user.mining ? "🟢 Active" : "🔴 Paused"}
+
+            </div>
+            `;
+
+        }).join("");
+
+}
+
+
+/* -------------------------
+   ADMIN WITHDRAWALS
+------------------------- */
+
+function displayAdminWithdrawals(users){
+
+    const box =
+        document.getElementById("adminWithdrawals");
+
+    let html = "";
+
+    users.forEach(function(user,userIndex){
+
+        (user.withdrawals || [])
+        .forEach(function(w,withdrawalIndex){
+
+            if(String(w.status).toLowerCase()
+                !== "pending"){
+
+                return;
+            }
+
+            html += `
+            <div class="row">
+
+            <strong>
+            💰 ${Number(w.amount || 0).toFixed(8)} BTC
+            </strong>
+
+            <br><br>
+
+            👤 User:
+            ${escapeHTML(user.email)}
+
+            <br>
+
+            📍 Address:
+            ${escapeHTML(w.address)}
+
+            <br>
+
+            📅 Date:
+            ${escapeHTML(w.date)}
+
+            <br><br>
+
+            <span class="pending">
+            🟡 Pending
+            </span>
+
+            <button
+            class="success"
+            data-action="approve"
+            data-user="${userIndex}"
+            data-withdrawal="${withdrawalIndex}">
+            ✅ Approve
+            </button>
+
+            <button
+            class="danger"
+            data-action="reject"
+            data-user="${userIndex}"
+            data-withdrawal="${withdrawalIndex}">
+            ❌ Reject
+            </button>
+
+            </div>
+            `;
+
+        });
+
+    });
+
+    if(!html){
+
+        html =
+            '<p class="small">No pending withdrawals.</p>';
+    }
+
+    box.innerHTML = html;
+
+}
+
+
+/* -------------------------
+   APPROVE / REJECT
+------------------------- */
+
+function approveWithdrawal(userIndex,withdrawalIndex){
+
+    const users = getUsers();
+
+    const user = users[userIndex];
+
+    if(!user || !user.withdrawals)return;
+
+    const withdrawal =
+        user.withdrawals[withdrawalIndex];
+
+    if(!withdrawal)return;
+
+    if(String(withdrawal.status).toLowerCase()
+        !== "pending")return;
+
+    withdrawal.status =
+        "Approved — Demo Only";
+
+    withdrawal.processedDate =
+        new Date().toLocaleString();
+
+    saveUsers(users);
+
+    alert(
+        "Withdrawal approved in Demo Mode.\n\n" +
+        "No real BTC was transferred."
+    );
+
+    updateAdmin();
+
+}
+
+
+function rejectWithdrawal(userIndex,withdrawalIndex){
+
+    const users = getUsers();
+
+    const user = users[userIndex];
+
+    if(!user || !user.withdrawals)return;
+
+    const withdrawal =
+        user.withdrawals[withdrawalIndex];
+
+    if(!withdrawal)return;
+
+    if(String(withdrawal.status).toLowerCase()
+        !== "pending")return;
+
+    user.balance =
+        Number(user.balance || 0)
+        + Number(withdrawal.amount || 0);
+
+    withdrawal.status =
+        "Rejected — Demo Only";
+
+    withdrawal.processedDate =
+        new Date().toLocaleString();
+
+    saveUsers(users);
+
+    alert(
+        "Withdrawal rejected.\n\n" +
+        "The simulated BTC was returned."
+    );
+
+    updateAdmin();
+
+}
+
+
+/* -------------------------
+   SECURITY DISPLAY HELPER
+------------------------- */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+/* -------------------------
+   BUTTON EVENTS
+------------------------- */
+
+document.addEventListener("DOMContentLoaded",function(){
+
+    document.getElementById("loginBtn")
+        .addEventListener("click",login);
+
+    document.getElementById("createBtn")
+        .addEventListener("click",showCreate);
+
+    document.getElementById("adminBtn")
+        .addEventListener("click",showAdminLogin);
+
+    document.getElementById("createAccountBtn")
+        .addEventListener("click",createAccount);
+
+    document.getElementById("backLoginBtn")
+        .addEventListener("click",showLogin);
+
+    document.getElementById("adminLoginBtn")
+        .addEventListener("click",adminLogin);
+
+    document.getElementById("adminBackBtn")
+        .addEventListener("click",showLogin);
+
+    document.getElementById("logoutBtn")
+        .addEventListener("click",logout);
+
+    document.getElementById("miningBtn")
+        .addEventListener("click",toggleMining);
+
+    document.getElementById("withdrawBtn")
+        .addEventListener("click",withdraw);
+
+    document.getElementById("openAdminBtn")
+        .addEventListener("click",openAdmin);
+
+    document.getElementById("adminLogoutBtn")
+        .addEventListener("click",adminLogout);
+
+    document.getElementById("adminWithdrawals")
+        .addEventListener("click",function(event){
+
+            const button =
+                event.target.closest("button");
+
+            if(!button)return;
+
+            const userIndex =
+                Number(button.dataset.user);
+
+            const withdrawalIndex =
+                Number(button.dataset.withdrawal);
+
+            if(button.dataset.action === "approve"){
+
+                approveWithdrawal(
+                    userIndex,
+                    withdrawalIndex
+                );
+            }
+
+            if(button.dataset.action === "reject"){
+
+                rejectWithdrawal(
+                    userIndex,
+                    withdrawalIndex
+                );
+            }
+
+        });
+
+    if(localStorage.getItem("loggedInUser")){
+
+        showDashboard();
+
+    }else{
+
+        showLogin();
+
+    }
+
+});
+
+
+/* -------------------------
+   LIVE REFRESH
+------------------------- */
+
+setInterval(function(){
+
+    if(
+        !document
+        .getElementById("dashboard")
+        .classList.contains("hidden")
+    ){
+
+        updateDashboard();
+
+    }
+
+    if(
+        !document
+        .getElementById("adminDashboard")
+        .classList.contains("hidden")
+    ){
+
+        updateAdmin();
+
+    }
+
+},1000);
+
+</script>
+
+</body>
+</html>
