@@ -1,59 +1,84 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>₿ BTC Mining Dashboard</title><style>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>₿ BTC Mining Dashboard</title>
+
+<style>
 *{box-sizing:border-box}
 
 body{
 margin:0;
 font-family:Arial,sans-serif;
-background:#0f172a;
+background:#020617;
 color:#e5e7eb;
 }
 
 .container{
 max-width:600px;
 margin:auto;
-padding:20px;
+padding:14px;
 }
 
 header{
-background:#111827;
-padding:20px;
+background:linear-gradient(135deg,#111827,#1e293b);
+padding:22px 16px;
 text-align:center;
-border-radius:12px;
-margin-bottom:20px;
+border-radius:16px;
+margin-bottom:16px;
+border:1px solid #334155;
+box-shadow:0 8px 25px rgba(0,0,0,.35);
+}
+
+header h1{
+margin:0 0 6px;
+font-size:26px;
+}
+
+header div{
+color:#94a3b8;
 }
 
 .card{
-background:#1e293b;
+background:#0f172a;
 padding:18px;
-margin-bottom:15px;
-border-radius:12px;
-box-shadow:0 4px 12px rgba(0,0,0,.25);
+margin-bottom:14px;
+border-radius:16px;
+border:1px solid #1e293b;
+box-shadow:0 6px 18px rgba(0,0,0,.25);
 }
 
-h1,h2,h3{margin-top:0}
+h2{
+margin-top:0;
+font-size:20px;
+}
 
 input{
 width:100%;
-padding:12px;
-margin:7px 0;
-border:none;
-border-radius:8px;
-background:#334155;
-color:white;
+padding:13px;
+margin:6px 0;
+border:1px solid #334155;
+border-radius:10px;
+background:#1e293b;
+color:#fff;
+font-size:15px;
+outline:none;
+}
+
+input:focus{
+border-color:#f7931a;
 }
 
 button{
 width:100%;
-padding:12px;
+padding:13px;
 margin-top:8px;
-border:none;
-border-radius:8px;
+border:0;
+border-radius:10px;
 cursor:pointer;
 font-weight:bold;
+font-size:15px;
 }
 
 .primary{
@@ -72,27 +97,37 @@ color:white;
 }
 
 .secondary{
-background:#475569;
+background:#334155;
 color:white;
 }
 
+.primary:active,
+.successButton:active,
+.danger:active,
+.secondary:active{
+transform:scale(.98);
+}
+
 .balance{
-font-size:28px;
+font-size:30px;
 font-weight:bold;
 color:#f7931a;
+word-break:break-all;
 }
 
 .status{
 font-weight:bold;
+font-size:18px;
 }
 
 .warning{
 background:#451a03;
-border:1px solid #f59e0b;
+border:1px solid #92400e;
 color:#fbbf24;
-padding:12px;
-border-radius:8px;
-margin-bottom:15px;
+padding:13px;
+border-radius:12px;
+margin-bottom:14px;
+line-height:1.5;
 }
 
 .hidden{
@@ -101,11 +136,13 @@ display:none;
 
 .user-row,
 .withdrawal-row{
-background:#0f172a;
+background:#020617;
 padding:14px;
 margin-top:10px;
-border-radius:8px;
+border-radius:12px;
 border:1px solid #334155;
+line-height:1.6;
+overflow-wrap:anywhere;
 }
 
 .small{
@@ -114,8 +151,8 @@ color:#94a3b8;
 }
 
 .stat{
-font-size:18px;
-margin:8px 0;
+font-size:17px;
+margin:10px 0;
 }
 
 .pending{
@@ -132,91 +169,302 @@ font-weight:bold;
 color:#f87171;
 font-weight:bold;
 }
-</style></head><body><div class="container"><header>
+
+.rate{
+color:#4ade80;
+font-weight:bold;
+}
+
+.footer{
+text-align:center;
+color:#64748b;
+font-size:12px;
+padding:10px 0 20px;
+}
+
+@media(max-width:400px){
+.container{padding:10px}
+.card{padding:15px}
+.balance{font-size:25px}
+header h1{font-size:22px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
 <h1>₿ BTC Mining Dashboard</h1>
 <div>Mining Simulator</div>
-</header><div class="warning">
+</header>
+
+<div class="warning">
 ⚠️ <strong>Demo Mode</strong><br>
 This application simulates mining, accounts and withdrawals locally.
 It does not perform real Bitcoin mining and does not transfer real BTC.
-</div><!-- LOGIN --><div id="loginScreen" class="card"><h2>🔐 Login</h2><input id="loginEmail" type="email" placeholder="Email">
-<input id="loginPassword" type="password" placeholder="Password"><button class="primary" onclick="login()">Login</button>
-<button class="secondary" onclick="showCreate()">Create Account</button>
-<button class="secondary" onclick="showAdminLogin()">🔧 Admin Login</button>
+</div>
 
-<p id="loginMessage"></p></div><!-- CREATE ACCOUNT --><div id="createScreen" class="card hidden"><h2>🆕 Create Account</h2><input id="createEmail" type="email" placeholder="Email">
-<input id="createPassword" type="password" placeholder="Password"><button class="successButton" onclick="createAccount()">Create Account</button>
-<button class="secondary" onclick="showLogin()">Back to Login</button>
+<!-- LOGIN -->
+<div id="loginScreen" class="card">
 
-<p id="createMessage"></p></div><!-- ADMIN LOGIN --><div id="adminLoginScreen" class="card hidden"><h2>🔧 Admin Login</h2><input id="adminPassword" type="password" placeholder="Admin Password"><button class="primary" onclick="adminLogin()">Login as Admin</button>
-<button class="secondary" onclick="showLogin()">Back</button>
+<h2>🔐 Login</h2>
 
-<p id="adminLoginMessage"></p></div><!-- USER DASHBOARD --><div id="dashboard" class="hidden"><div class="card"><h2>👤 Welcome!</h2><p>
+<input id="loginEmail" type="email" placeholder="Email">
+
+<input id="loginPassword" type="password" placeholder="Password">
+
+<button class="primary" onclick="login()">Login</button>
+
+<button class="secondary" onclick="showCreate()">
+Create Account
+</button>
+
+<button class="secondary" onclick="showAdminLogin()">
+🔧 Admin Login
+</button>
+
+<p id="loginMessage"></p>
+
+</div>
+
+<!-- CREATE ACCOUNT -->
+<div id="createScreen" class="card hidden">
+
+<h2>🆕 Create Account</h2>
+
+<input id="createEmail" type="email" placeholder="Email">
+
+<input id="createPassword" type="password" placeholder="Password">
+
+<button class="successButton" onclick="createAccount()">
+Create Account
+</button>
+
+<button class="secondary" onclick="showLogin()">
+Back to Login
+</button>
+
+<p id="createMessage"></p>
+
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLoginScreen" class="card hidden">
+
+<h2>🔧 Admin Login</h2>
+
+<input id="adminPassword" type="password" placeholder="Admin Password">
+
+<button class="primary" onclick="adminLogin()">
+Login as Admin
+</button>
+
+<button class="secondary" onclick="showLogin()">
+Back
+</button>
+
+<p id="adminLoginMessage"></p>
+
+</div>
+
+<!-- USER DASHBOARD -->
+<div id="dashboard" class="hidden">
+
+<div class="card">
+
+<h2>👤 Welcome!</h2>
+
+<p>
 Logged in as:
 <strong id="userEmail"></strong>
-</p><button class="secondary" onclick="logout()">Logout</button>
+</p>
 
-</div><div class="card"><h2>💰 BTC Balance</h2><div class="balance" id="balance">0.00000000 BTC</div><p class="small">Simulated balance</p></div><div class="card"><h2>⛏️ Mining Status</h2><p id="miningStatus" class="status"></p><p>
+<button class="secondary" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>💰 BTC Balance</h2>
+
+<div class="balance" id="balance">
+0.00000000 BTC
+</div>
+
+<p class="small">
+Simulated balance
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>⛏️ Mining Status</h2>
+
+<p id="miningStatus" class="status"></p>
+
+<p>
 Mining Rate:
-<strong>0.00010 BTC/hour</strong>
-</p><button id="miningButton" class="successButton" onclick="toggleMining()"></button>
+<span class="rate">0.00010 BTC/hour</span>
+</p>
 
-</div><div class="card"><h2>💸 Withdraw BTC</h2><p>
+<button id="miningButton"
+class="successButton"
+onclick="toggleMining()">
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>💸 Withdraw BTC</h2>
+
+<p>
 Minimum withdrawal:
 <strong>0.00010000 BTC</strong>
-</p><input id="walletAddress" placeholder="BTC wallet address"><input id="withdrawAmount"
+</p>
+
+<input
+id="walletAddress"
+placeholder="BTC wallet address">
+
+<input
+id="withdrawAmount"
 type="number"
 step="0.00000001"
 placeholder="Amount BTC">
 
 <button class="primary" onclick="withdraw()">
 Request Withdrawal
-</button><p id="withdrawMessage"></p></div><div class="card"><h2>📜 Withdrawal History</h2><div id="withdrawalHistory"></div></div><div class="card"><button class="secondary" onclick="openAdmin()">
+</button>
+
+<p id="withdrawMessage"></p>
+
+</div>
+
+<div class="card">
+
+<h2>📜 Withdrawal History</h2>
+
+<div id="withdrawalHistory"></div>
+
+</div>
+
+<div class="card">
+
+<button class="secondary" onclick="openAdmin()">
 🔧 Admin Dashboard
-</button></div></div><!-- ADMIN DASHBOARD --><div id="adminDashboard" class="hidden"><div class="card"><h2>🔧 Admin Dashboard</h2><p><strong>Demo Administrator</strong></p><p class="small">
+</button>
+
+</div>
+
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="adminDashboard" class="hidden">
+
+<div class="card">
+
+<h2>🔧 Admin Dashboard</h2>
+
+<p><strong>Demo Administrator</strong></p>
+
+<p class="small">
 🔒 User passwords are never displayed.
-</p><button class="secondary" onclick="adminLogout()">
+</p>
+
+<button class="secondary" onclick="adminLogout()">
 Logout Admin
-</button></div><div class="card"><h2>📊 Admin Statistics</h2><p class="stat">
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>📊 Admin Statistics</h2>
+
+<p class="stat">
 Registered Users:
 <strong id="registeredUsers">0</strong>
-</p><p class="stat">
+</p>
+
+<p class="stat">
 Total Simulated BTC:
 <strong id="totalBTC">0.00000000 BTC</strong>
-</p><p class="stat">
+</p>
+
+<p class="stat">
 Pending Withdrawals:
 <strong id="pendingWithdrawals">0</strong>
-</p></div><div class="card"><h2>💸 Pending Withdrawals</h2><div id="adminWithdrawals"></div></div><div class="card"><h2>👥 Users</h2><div id="usersList"></div></div></div></div><script>
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>💸 Pending Withdrawals</h2>
+
+<div id="adminWithdrawals"></div>
+
+</div>
+
+<div class="card">
+
+<h2>👥 Users</h2>
+
+<div id="usersList"></div>
+
+</div>
+
+</div>
+
+<div class="footer">
+BTC Mining Dashboard • Demo Mode
+</div>
+
+</div>
+
+<script>
 
 const miningRate = 0.00010;
 const minimumWithdrawal = 0.00010000;
 
 
-/* =========================
-   STORAGE
-========================= */
+/* STORAGE */
 
 function getUsers(){
-
 return JSON.parse(
 localStorage.getItem("btcUsers") || "[]"
 );
-
 }
 
 function saveUsers(users){
-
 localStorage.setItem(
 "btcUsers",
 JSON.stringify(users)
 );
+}
+
+
+/* SAFE TEXT */
+
+function escapeHTML(value){
+
+return String(value ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
 }
 
 
-/* =========================
-   DATA REPAIR
-========================= */
+/* DATA REPAIR */
 
 function repairUsers(){
 
@@ -272,24 +520,6 @@ if(!Array.isArray(user.withdrawals)){
 user.withdrawals=[];
 }
 
-user.withdrawals.forEach(w=>{
-
-if(
-typeof w.address!=="string" ||
-!w.address.trim() ||
-/^0\.\d{8}$/.test(w.address.trim())
-){
-
-w.address="Address not recorded";
-
-}
-
-if(!w.status){
-w.status="Pending";
-}
-
-});
-
 });
 
 saveUsers(users);
@@ -299,9 +529,7 @@ return users;
 }
 
 
-/* =========================
-   SCREENS
-========================= */
+/* SCREENS */
 
 function showLogin(){
 
@@ -314,6 +542,12 @@ document.getElementById("createScreen")
 document.getElementById("adminLoginScreen")
 .classList.add("hidden");
 
+document.getElementById("dashboard")
+.classList.add("hidden");
+
+document.getElementById("adminDashboard")
+.classList.add("hidden");
+
 }
 
 function showCreate(){
@@ -324,11 +558,17 @@ document.getElementById("loginScreen")
 document.getElementById("createScreen")
 .classList.remove("hidden");
 
+document.getElementById("adminLoginScreen")
+.classList.add("hidden");
+
 }
 
 function showAdminLogin(){
 
 document.getElementById("loginScreen")
+.classList.add("hidden");
+
+document.getElementById("createScreen")
 .classList.add("hidden");
 
 document.getElementById("adminLoginScreen")
@@ -337,9 +577,7 @@ document.getElementById("adminLoginScreen")
 }
 
 
-/* =========================
-   CREATE ACCOUNT
-========================= */
+/* CREATE ACCOUNT */
 
 function createAccount(){
 
@@ -351,10 +589,12 @@ const password=
 document.getElementById("createPassword")
 .value;
 
+const message=
+document.getElementById("createMessage");
+
 if(!email || !password){
 
-document.getElementById("createMessage")
-.textContent=
+message.textContent=
 "Please enter an email and password.";
 
 return;
@@ -370,8 +610,7 @@ u=>String(u.email).toLowerCase()
 )
 ){
 
-document.getElementById("createMessage")
-.textContent=
+message.textContent=
 "Account already exists.";
 
 return;
@@ -391,8 +630,7 @@ withdrawals:[]
 
 saveUsers(users);
 
-document.getElementById("createMessage")
-.textContent=
+message.textContent=
 "Account created successfully.";
 
 setTimeout(showLogin,800);
@@ -400,9 +638,7 @@ setTimeout(showLogin,800);
 }
 
 
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN */
 
 function login(){
 
@@ -444,9 +680,7 @@ showDashboard();
 }
 
 
-/* =========================
-   USER DASHBOARD
-========================= */
+/* USER DASHBOARD */
 
 function showDashboard(){
 
@@ -496,9 +730,7 @@ showLogin();
 }
 
 
-/* =========================
-   DASHBOARD UPDATE
-========================= */
+/* DASHBOARD UPDATE */
 
 function updateDashboard(){
 
@@ -513,7 +745,12 @@ String(u.email).toLowerCase()
 ===String(email).toLowerCase()
 );
 
-if(index===-1)return;
+if(index===-1){
+
+logout();
+return;
+
+}
 
 const user=users[index];
 
@@ -547,7 +784,7 @@ document.getElementById("miningStatus")
 
 document.getElementById("miningButton")
 .textContent=
-"Pause Mining";
+"⏸ Pause Mining";
 
 }else{
 
@@ -557,7 +794,7 @@ document.getElementById("miningStatus")
 
 document.getElementById("miningButton")
 .textContent=
-"Start Mining";
+"▶ Start Mining";
 
 }
 
@@ -566,9 +803,7 @@ displayWithdrawalHistory(user);
 }
 
 
-/* =========================
-   MINING
-========================= */
+/* MINING */
 
 function toggleMining(){
 
@@ -619,9 +854,7 @@ updateDashboard();
 }
 
 
-/* =========================
-   WITHDRAWAL REQUEST
-========================= */
+/* WITHDRAW */
 
 function withdraw(){
 
@@ -711,9 +944,7 @@ updateDashboard();
 }
 
 
-/* =========================
-   USER WITHDRAWAL HISTORY
-========================= */
+/* WITHDRAWAL HISTORY */
 
 function displayWithdrawalHistory(user){
 
@@ -733,19 +964,7 @@ return;
 }
 
 box.innerHTML=
-user.withdrawals.map((w,index)=>{
-
-let address=w.address;
-
-if(
-typeof address!=="string" ||
-!address.trim() ||
-/^0\.\d{8}$/.test(address.trim())
-){
-
-address="Address not recorded";
-
-}
+user.withdrawals.map(w=>{
 
 let status=
 String(w.status||"Pending");
@@ -777,16 +996,19 @@ return `
 
 <br><br>
 
-📍 Address: ${address}
+📍 Address:
+${escapeHTML(w.address||"Address not recorded")}
 
 <br>
 
-📅 Date: ${w.date||"Unknown"}
+📅 Date:
+${escapeHTML(w.date||"Unknown")}
 
 <br>
 
 <span class="${statusClass}">
-${statusIcon} Status: ${status}
+${statusIcon} Status:
+${escapeHTML(status)}
 </span>
 
 </div>
@@ -798,9 +1020,7 @@ ${statusIcon} Status: ${status}
 }
 
 
-/* =========================
-   ADMIN LOGIN
-========================= */
+/* ADMIN LOGIN */
 
 function adminLogin(){
 
@@ -854,9 +1074,7 @@ showLogin();
 }
 
 
-/* =========================
-   ADMIN DASHBOARD
-========================= */
+/* ADMIN DASHBOARD */
 
 function updateAdmin(){
 
@@ -911,10 +1129,6 @@ return;
 list.innerHTML=
 users.map(user=>{
 
-const safeEmail=
-String(user.email||"Unknown User")
-.replace(/["{}]/g,"");
-
 const balance=
 Number(user.balance||0)
 .toFixed(8);
@@ -928,15 +1142,19 @@ return `
 
 <div class="user-row">
 
-<strong>${safeEmail}</strong>
+<strong>
+${escapeHTML(user.email||"Unknown User")}
+</strong>
 
 <br>
 
-Balance: ${balance} BTC
+Balance:
+${balance} BTC
 
 <br>
 
-Mining: ${mining}
+Mining:
+${mining}
 
 </div>
 
@@ -947,9 +1165,7 @@ Mining: ${mining}
 }
 
 
-/* =========================
-   ADMIN WITHDRAWALS
-========================= */
+/* ADMIN WITHDRAWALS */
 
 function displayAdminWithdrawals(users){
 
@@ -974,18 +1190,6 @@ return;
 
 }
 
-let address=w.address;
-
-if(
-typeof address!=="string" ||
-!address.trim() ||
-/^0\.\d{8}$/.test(address.trim())
-){
-
-address="Address not recorded";
-
-}
-
 html+=`
 
 <div class="withdrawal-row">
@@ -997,202 +1201,9 @@ html+=`
 <br><br>
 
 👤 User:
-${String(user.email||"Unknown User")}
+${escapeHTML(user.email||"Unknown User")}
 
 <br>
 
-📍 Address: ${address}
-
-<br>
-
-📅 Date: ${w.date||"Unknown"}
-
-<br>
-
-<span class="pending">
-🟡 Status: Pending
-</span>
-
-<button
-class="successButton"
-onclick="approveWithdrawal(${userIndex},${withdrawalIndex})">
-
-✅ Approve
-
-</button>
-
-<button
-class="danger"
-onclick="rejectWithdrawal(${userIndex},${withdrawalIndex})">
-
-❌ Reject
-
-</button>
-
-</div>
-
-`;
-
-});
-
-});
-
-if(!html){
-
-html=
-'<p class="small">No pending withdrawals.</p>';
-
-}
-
-box.innerHTML=html;
-
-}
-
-
-/* =========================
-   APPROVE WITHDRAWAL
-========================= */
-
-function approveWithdrawal(
-userIndex,
-withdrawalIndex
-){
-
-const users=repairUsers();
-
-const user=users[userIndex];
-
-if(!user || !user.withdrawals)return;
-
-const withdrawal=
-user.withdrawals[withdrawalIndex];
-
-if(!withdrawal)return;
-
-/*
-Only pending withdrawals can be approved.
-*/
-
-if(
-String(withdrawal.status)
-.toLowerCase()!=="pending"
-){
-
-return;
-
-}
-
-withdrawal.status=
-"Approved — Demo Only";
-
-withdrawal.processedDate=
-new Date().toLocaleString();
-
-saveUsers(users);
-
-alert(
-"Withdrawal approved in Demo Mode.\n\nNo real BTC was transferred."
-);
-
-updateAdmin();
-
-}
-
-
-/* =========================
-   REJECT WITHDRAWAL
-========================= */
-
-function rejectWithdrawal(
-userIndex,
-withdrawalIndex
-){
-
-const users=repairUsers();
-
-const user=users[userIndex];
-
-if(!user || !user.withdrawals)return;
-
-const withdrawal=
-user.withdrawals[withdrawalIndex];
-
-if(!withdrawal)return;
-
-/*
-Only pending withdrawals can be rejected.
-This prevents the balance from being
-returned twice.
-*/
-
-if(
-String(withdrawal.status)
-.toLowerCase()!=="pending"
-){
-
-return;
-
-}
-
-user.balance=
-Number(user.balance||0)
-+
-Number(withdrawal.amount||0);
-
-withdrawal.status=
-"Rejected — Demo Only";
-
-withdrawal.processedDate=
-new Date().toLocaleString();
-
-saveUsers(users);
-
-alert(
-"Withdrawal rejected.\n\nThe simulated BTC has been returned to the user's demo balance."
-);
-
-updateAdmin();
-
-}
-
-
-/* =========================
-   LIVE DASHBOARD REFRESH
-========================= */
-
-setInterval(()=>{
-
-if(
-!document
-.getElementById("dashboard")
-.classList
-.contains("hidden")
-){
-
-updateDashboard();
-
-}
-
-},1000);
-
-
-/* =========================
-   STARTUP
-========================= */
-
-repairUsers();
-
-if(
-localStorage.getItem("loggedInUser")
-){
-
-showDashboard();
-
-}else{
-
-showLogin();
-
-}
-
-</script></body>
-</html>
+📍 Address:
+${escapeHTML(w.address||"Address not
