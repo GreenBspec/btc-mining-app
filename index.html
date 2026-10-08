@@ -663,29 +663,47 @@ function displayWithdrawals(user){
   }
 
   box.innerHTML =
-    user.withdrawals.map(w => `
+    user.withdrawals.map(w => {
+
+      const safeAddress =
+        w.address && w.address.trim()
+          ? w.address
+          : "Address not recorded";
+
+      const safeStatus =
+        w.status || "Pending";
+
+      const safeDate =
+        w.date || "Date not recorded";
+
+      const safeAmount =
+        Number(w.amount || 0).toFixed(8);
+
+      return `
 
       <div class="user-row">
 
         <strong>
-        ${Number(w.amount).toFixed(8)} BTC
+        ${safeAmount} BTC
         </strong>
 
         <br>
 
-        Address: ${w.address}
+        Address: ${safeAddress}
 
         <br>
 
-        Status: ${w.status}
+        Status: ${safeStatus}
 
         <br>
 
-        Date: ${w.date}
+        Date: ${safeDate}
 
       </div>
 
-    `).join("");
+      `;
+
+    }).join("");
 
 }
 
