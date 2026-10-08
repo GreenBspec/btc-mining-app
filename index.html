@@ -255,7 +255,7 @@ Minimum withdrawal: 0.00010000 BTC
 
 <input
 id="walletAddress"
-placeholder="BTC wallet address"
+placeholder="Demo wallet address"
 >
 
 <button onclick="withdraw()">
@@ -582,9 +582,11 @@ function toggleMining(){
 
 function withdraw(){
 
+  const addressInput =
+    document.getElementById("walletAddress");
+
   const address =
-    document.getElementById("walletAddress")
-    .value.trim();
+    addressInput.value.trim();
 
   const users = getUsers();
 
@@ -615,14 +617,20 @@ function withdraw(){
 
   }
 
+  const withdrawalAmount =
+    Number(user.balance);
+
+  const withdrawalAddress =
+    String(address);
+
   user.withdrawals =
     user.withdrawals || [];
 
   user.withdrawals.push({
 
-    amount:user.balance,
+    amount:withdrawalAmount,
 
-    address:address,
+    address:withdrawalAddress,
 
     status:"Pending",
 
@@ -634,12 +642,11 @@ function withdraw(){
 
   saveUsers(users);
 
+  addressInput.value = "";
+
   document.getElementById("withdrawMessage")
     .innerHTML =
     '<span class="success">Demo withdrawal request submitted.</span>';
-
-  document.getElementById("walletAddress")
-    .value = "";
 
   updateDashboard();
 
@@ -665,39 +672,57 @@ function displayWithdrawals(user){
   box.innerHTML =
     user.withdrawals.map(w => {
 
-      const safeAddress =
-        w.address && w.address.trim()
-          ? w.address
-          : "Address not recorded";
+      let amount = Number(w.amount || 0);
 
-      const safeStatus =
+      let address = "";
+
+      if(typeof w.address === "string"){
+
+        address = w.address.trim();
+
+      }
+
+      /*
+       * Protect against old/corrupted records
+       * where the address was accidentally saved
+       * as a BTC amount.
+       */
+
+      if(
+        !address ||
+        /^0\.\d{8}$/.test(address) ||
+        address === String(amount.toFixed(8))
+      ){
+
+        address = "Address not recorded";
+
+      }
+
+      const status =
         w.status || "Pending";
 
-      const safeDate =
+      const date =
         w.date || "Date not recorded";
-
-      const safeAmount =
-        Number(w.amount || 0).toFixed(8);
 
       return `
 
       <div class="user-row">
 
         <strong>
-        ${safeAmount} BTC
+        ${amount.toFixed(8)} BTC
         </strong>
 
         <br>
 
-        Address: ${safeAddress}
+        Address: ${address}
 
         <br>
 
-        Status: ${safeStatus}
+        Status: ${status}
 
         <br>
 
-        Date: ${safeDate}
+        Date: ${date}
 
       </div>
 
