@@ -1,18 +1,18 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#111827">
 <title>BTC Mining Dashboard</title>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b1220;color:#f3f4f6;font-family:Arial,sans-serif}
 header{background:#111827;padding:20px 15px;text-align:center;border-bottom:1px solid #374151}
 header h1{margin:0;color:#f7931a;font-size:25px}
-header p{color:#9ca3af;margin:8px 0 0}
+header p,.small{color:#9ca3af;line-height:1.5}
 main{max-width:600px;margin:auto;padding:15px}
 .card{background:#172033;border:1px solid #303c50;border-radius:14px;padding:17px;margin:13px 0}
 h2{font-size:18px;margin-top:0}
@@ -20,349 +20,216 @@ h2{font-size:18px;margin-top:0}
 input,button{width:100%;padding:13px;border-radius:9px;font-size:15px;margin:6px 0}
 input{background:#0b1220;border:1px solid #4b5563;color:white}
 button{border:0;background:#f7931a;color:#111827;font-weight:bold;cursor:pointer}
-button.secondary{background:#374151;color:white}
-button.danger{background:#991b1b;color:white}
-button:disabled{opacity:.5}
-.small{font-size:13px;color:#9ca3af;line-height:1.5}
+.secondary{background:#374151;color:white}
+.hidden{display:none}
 .balance{font-size:27px;font-weight:bold;color:#f7931a;overflow-wrap:anywhere}
 .stat{display:flex;justify-content:space-between;gap:10px;margin:12px 0}
-.stat span:last-child{text-align:right;overflow-wrap:anywhere}
-.status{color:#86efac;font-weight:bold}
-.paused{color:#fca5a5}
 .item{padding:12px 0;border-bottom:1px solid #374151;overflow-wrap:anywhere}
-.item:last-child{border-bottom:0}
-.hidden{display:none}
 footer{text-align:center;color:#9ca3af;font-size:12px;padding:20px}
 </style>
 </head>
-
 <body>
 <header>
 <h1>₿ BTC Mining Dashboard</h1>
 <p>Mobile-friendly mining rewards demo</p>
 </header>
-
 <main>
 <div class="warning">
-<strong>⚠ DEMO MODE</strong><br>
-This app simulates mining, balances and withdrawals. It does not mine real Bitcoin and cannot send real BTC to a wallet. Displayed earnings are not real money.
+<strong>DEMO MODE</strong><br>
+This application simulates mining and withdrawals. It does not mine real Bitcoin or send real BTC. Mining balances and history are stored locally in this browser.
 </div>
 
-<section id="authSection" class="card">
-<h2>🔐 Login or Create Account</h2>
+<section id="auth" class="card">
+<h2>🔐 Account</h2>
 <input id="email" type="email" placeholder="Email address" autocomplete="email">
-<input id="password" type="password" placeholder="Password" autocomplete="current-password">
-<button onclick="createAccount()">Create Account</button>
-<button class="secondary" onclick="login()">Login</button>
-<p id="authMessage" class="small"></p>
-<p class="small">Demo accounts are stored in this browser. Use a password you do not use for other accounts.</p>
+<input id="password" type="password" placeholder="Password (at least 6 characters)" autocomplete="current-password">
+<button id="signup">Create Account</button>
+<button id="login" class="secondary">Login</button>
+<p id="message" class="small" aria-live="polite"></p>
+<p class="small">Email confirmation may be required before you can log in.</p>
 </section>
 
-<section id="dashboard" class="hidden">
+<section id="app" class="hidden">
 <div class="card">
-<div class="stat"><span>Logged in as</span><strong id="userEmail"></strong></div>
-<button class="secondary" onclick="logout()">Logout</button>
+<div class="stat"><span>Signed in as</span><strong id="userEmail"></strong></div>
+<button id="logout" class="secondary">Logout</button>
 </div>
-
 <div class="card">
-<h2>💰 BTC Balance</h2>
+<h2>💰 Simulated BTC Balance</h2>
 <div id="balance" class="balance">0.00000000 BTC</div>
-<p class="small">Simulated balance only</p>
-<div class="stat"><span>Total simulated earned</span><span id="totalEarned">0.00000000 BTC</span></div>
+<div class="stat"><span>Total simulated earned</span><span id="earned">0.00000000 BTC</span></div>
 <div class="stat"><span>Mining rate</span><strong>0.00010 BTC/hour</strong></div>
 </div>
-
 <div class="card">
 <h2>⛏️ Mining Status</h2>
-<p>Status: <strong id="miningStatus">Paused</strong></p>
-<button id="miningButton" onclick="toggleMining()">Start Mining</button>
-<p class="small">The demo calculates simulated earnings based on elapsed time while mining is active.</p>
+<p>Status: <strong id="status">Paused</strong></p>
+<button id="mine">Start Mining</button>
+<p class="small">Earnings are simulated and have no cash value.</p>
 </div>
-
 <div class="card">
-<h2>💸 Request Demo Withdrawal</h2>
-<p class="small">Minimum simulated withdrawal: 0.00010000 BTC</p>
-<input id="wallet" placeholder="Bitcoin wallet address">
-<input id="withdrawAmount" type="number" min="0.0001" step="0.00000001" placeholder="Amount in BTC">
-<button onclick="requestWithdrawal()">Submit Demo Request</button>
-<p id="withdrawMessage" class="small"></p>
+<h2>💸 Demo Withdrawal Request</h2>
+<p class="small">Minimum: 0.00010000 BTC. No real transfer occurs.</p>
+<input id="wallet" placeholder="Demo wallet address">
+<input id="amount" type="number" min="0.0001" step="0.00000001" placeholder="Amount in BTC">
+<button id="withdraw">Submit Demo Request</button>
+<p id="withdrawMessage" class="small" aria-live="polite"></p>
 </div>
-
 <div class="card">
 <h2>📜 Withdrawal History</h2>
-<div id="withdrawalHistory" class="small">No requests yet.</div>
-</div>
-
-<div class="card">
-<h2>ℹ️ About This App</h2>
-<p class="small">This is a demonstration dashboard. It uses local browser storage and does not verify blockchain transactions, generate real BTC, or transfer cryptocurrency.</p>
-</div>
-</section>
-
-<section id="adminLoginSection" class="card">
-<h2>🔧 Admin Login</h2>
-<input id="adminPassword" type="password" placeholder="Demo admin password">
-<button class="secondary" onclick="adminLogin()">Admin Login</button>
-<p class="small">Demo only: the example admin password is admin123. Do not use this password for a real service.</p>
-<p id="adminMessage" class="small"></p>
-</section>
-
-<section id="adminDashboard" class="hidden">
-<div class="card">
-<h2>🔧 Admin Dashboard</h2>
-<div class="stat"><span>Registered demo users</span><strong id="userCount">0</strong></div>
-<div class="stat"><span>Total simulated BTC</span><strong id="allBalances">0.00000000 BTC</strong></div>
-<div class="stat"><span>Pending demo withdrawals</span><strong id="pendingCount">0</strong></div>
-<button class="secondary" onclick="renderAdmin()">Refresh Dashboard</button>
-<button class="danger" onclick="adminLogout()">Admin Logout</button>
-</div>
-<div class="card">
-<h2>Demo Users</h2>
-<div id="adminUsers" class="small"></div>
-</div>
-<div class="card">
-<h2>Withdrawal Requests</h2>
-<div id="adminWithdrawals" class="small"></div>
+<div id="history" class="small">No requests yet.</div>
 </div>
 </section>
 </main>
-
 <footer>BTC Mining Dashboard · Demo Version</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL = "https://zztgmannjcfvigdbwcfm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";sb_publishable_eNrHmjspw9eN9_uwQxir2w_TPOaatqp
 const MINING_RATE = 0.00010;
-const MIN_WITHDRAWAL = 0.00010000;
+const MIN_WITHDRAWAL = 0.0001;
 
-const USERS_KEY = "btcUsers";
-const LOGIN_KEY = "loggedInUser";
-const REQUESTS_KEY = "btcDemoWithdrawals";
+const authBox = document.getElementById("auth");
+const appBox = document.getElementById("app");
+const message = document.getElementById("message");
+let client = null;
+let currentUser = null;
+let timer = null;
 
-function getUsers(){
-  try { return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
-  catch(e){ return {}; }
+function say(text){ message.textContent = text; }
+function key(name){
+  return "btcDemo_" + currentUser.id + "_" + name;
 }
-function saveUsers(users){
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-function getRequests(){
-  try { return JSON.parse(localStorage.getItem(REQUESTS_KEY) || "[]"); }
-  catch(e){ return []; }
-}
-function saveRequests(items){
-  localStorage.setItem(REQUESTS_KEY, JSON.stringify(items));
-}
-function currentEmail(){
-  return localStorage.getItem(LOGIN_KEY);
-}
-function getUser(){
-  const email = currentEmail();
-  const users = getUsers();
-  return email && users[email] ? users[email] : null;
-}
-function money(value){
-  return Math.max(0, Number(value) || 0).toFixed(8);
-}
-function showMessage(id, message){
-  document.getElementById(id).textContent = message;
-}
-function createAccount(){
-  const email = document.getElementById("email").value.trim().toLowerCase();
-  const password = document.getElementById("password").value;
-  if(!email || !email.includes("@") || password.length < 6){
-    showMessage("authMessage","Enter a valid email and a password of at least 6 characters.");
-    return;
+function loadData(){
+  try {
+    return JSON.parse(localStorage.getItem(key("data"))) || {
+      balance:0, earned:0, mining:false, last:Date.now(), requests:[]
+    };
+  } catch(e) {
+    return {balance:0,earned:0,mining:false,last:Date.now(),requests:[]};
   }
-  const users = getUsers();
-  if(users[email]){
-    showMessage("authMessage","That demo account already exists. Please log in.");
-    return;
-  }
-  users[email] = {
-    password: password,
-    balance: 0,
-    totalEarned: 0,
-    mining: false,
-    lastUpdate: Date.now()
-  };
-  saveUsers(users);
-  localStorage.setItem(LOGIN_KEY,email);
-  showMessage("authMessage","Demo account created.");
-  render();
 }
-function login(){
-  const email = document.getElementById("email").value.trim().toLowerCase();
-  const password = document.getElementById("password").value;
-  const users = getUsers();
-  if(!users[email] || users[email].password !== password){
-    showMessage("authMessage","Account not found or password incorrect.");
-    return;
-  }
-  localStorage.setItem(LOGIN_KEY,email);
-  users[email].lastUpdate = Date.now();
-  saveUsers(users);
-  render();
+function saveData(data){
+  localStorage.setItem(key("data"),JSON.stringify(data));
 }
-function logout(){
-  updateMining();
-  localStorage.removeItem(LOGIN_KEY);
-  render();
-}
-function updateMining(){
-  const email = currentEmail();
-  const users = getUsers();
-  const user = email && users[email];
-  if(!user) return;
+function updateMining(data){
   const now = Date.now();
-  if(user.mining && user.lastUpdate){
-    const elapsedHours = Math.max(0, now - user.lastUpdate) / 3600000;
-    const earned = elapsedHours * MINING_RATE;
-    user.balance = (Number(user.balance) || 0) + earned;
-    user.totalEarned = (Number(user.totalEarned) || 0) + earned;
+  if(data.mining && data.last){
+    const hours = Math.max(0,now-data.last)/3600000;
+    const amount = hours*MINING_RATE;
+    data.balance += amount;
+    data.earned += amount;
   }
-  user.lastUpdate = now;
-  saveUsers(users);
+  data.last = now;
+  saveData(data);
+  return data;
 }
-function toggleMining(){
-  updateMining();
-  const email = currentEmail();
-  const users = getUsers();
-  if(!email || !users[email]) return;
-  users[email].mining = !users[email].mining;
-  users[email].lastUpdate = Date.now();
-  saveUsers(users);
-  render();
-}
-function requestWithdrawal(){
-  updateMining();
-  const user = getUser();
-  if(!user) return;
-  const wallet = document.getElementById("wallet").value.trim();
-  const amount = Number(document.getElementById("withdrawAmount").value);
-  if(!wallet){
-    showMessage("withdrawMessage","Enter a wallet address for this demo request.");
-    return;
-  }
-  if(!Number.isFinite(amount) || amount < MIN_WITHDRAWAL){
-    showMessage("withdrawMessage","The minimum demo request is 0.00010000 BTC.");
-    return;
-  }
-  if(amount > user.balance){
-    showMessage("withdrawMessage","Insufficient simulated balance.");
-    return;
-  }
-  const email = currentEmail();
-  const users = getUsers();
-  users[email].balance -= amount;
-  saveUsers(users);
-
-  const requests = getRequests();
-  requests.unshift({
-    id: Date.now().toString(),
-    email: email,
-    wallet: wallet,
-    amount: amount,
-    status: "Pending demo review",
-    date: new Date().toLocaleString()
-  });
-  saveRequests(requests);
-  document.getElementById("withdrawAmount").value = "";
-  document.getElementById("wallet").value = "";
-  showMessage("withdrawMessage","Demo request recorded. No real BTC has been sent.");
-  render();
-}
-function renderHistory(){
-  const email = currentEmail();
-  const items = getRequests().filter(r => r.email === email);
-  const el = document.getElementById("withdrawalHistory");
-  if(!items.length){
-    el.textContent = "No requests yet.";
-    return;
-  }
-  el.innerHTML = items.map(r =>
-    '<div class="item"><strong>'+escapeHTML(money(r.amount))+' BTC</strong>'+
-    '<br>Status: '+escapeHTML(r.status)+
-    '<br>Address: '+escapeHTML(r.wallet)+
-    '<br>Date: '+escapeHTML(r.date)+'</div>'
-  ).join("");
-}
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g, ch => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[ch]));
-}
+function fmt(n){return Math.max(0,Number(n)||0).toFixed(8);}
 function render(){
-  const user = getUser();
-  document.getElementById("authSection").classList.toggle("hidden",!!user);
-  document.getElementById("dashboard").classList.toggle("hidden",!user);
-  if(user){
-    updateMining();
-    const refreshed = getUser();
-    document.getElementById("userEmail").textContent = currentEmail();
-    document.getElementById("balance").textContent = money(refreshed.balance)+" BTC";
-    document.getElementById("totalEarned").textContent = money(refreshed.totalEarned)+" BTC";
-    document.getElementById("miningStatus").textContent = refreshed.mining ? "Active" : "Paused";
-    document.getElementById("miningStatus").className = refreshed.mining ? "status" : "paused";
-    document.getElementById("miningButton").textContent = refreshed.mining ? "Pause Mining" : "Start Mining";
-    renderHistory();
-  }
-  if(!document.getElementById("adminDashboard").classList.contains("hidden")){
-    renderAdmin();
+  authBox.classList.toggle("hidden",!!currentUser);
+  appBox.classList.toggle("hidden",!currentUser);
+  if(!currentUser) return;
+  let data = updateMining(loadData());
+  document.getElementById("userEmail").textContent = currentUser.email || "";
+  document.getElementById("balance").textContent = fmt(data.balance)+" BTC";
+  document.getElementById("earned").textContent = fmt(data.earned)+" BTC";
+  document.getElementById("status").textContent = data.mining ? "Active" : "Paused";
+  document.getElementById("mine").textContent = data.mining ? "Pause Mining" : "Start Mining";
+  document.getElementById("history").textContent = "";
+  if(!data.requests.length){
+    document.getElementById("history").textContent = "No requests yet.";
+  } else {
+    data.requests.forEach(r=>{
+      const item=document.createElement("div");
+      item.className="item";
+      item.textContent=fmt(r.amount)+" BTC — "+r.status+" — "+r.date;
+      document.getElementById("history").appendChild(item);
+    });
   }
 }
-function adminLogin(){
-  if(document.getElementById("adminPassword").value !== "admin123"){
-    showMessage("adminMessage","Incorrect demo admin password.");
+async function init(){
+  if(!window.supabase){
+    say("Could not load the Supabase library. Check your internet connection.");
     return;
   }
-  document.getElementById("adminLoginSection").classList.add("hidden");
-  document.getElementById("adminDashboard").classList.remove("hidden");
-  showMessage("adminMessage","");
-  renderAdmin();
+  if(SUPABASE_PUBLISHABLE_KEY === "PASTE_YOUR_PUBLISHABLE_KEY_HERE"){
+    say("Setup needed: paste your Supabase publishable key into the code.");
+    return;
+  }
+  client = window.supabase.createClient(
+    SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY
+  );
+  const {data,error} = await client.auth.getSession();
+  if(error){say(error.message);return;}
+  currentUser = data.session ? data.session.user : null;
+  render();
+  client.auth.onAuthStateChange((_event,session)=>{
+    currentUser = session ? session.user : null;
+    render();
+  });
+  if(timer) clearInterval(timer);
+  timer=setInterval(()=>{if(currentUser)render();},1000);
 }
-function adminLogout(){
-  document.getElementById("adminDashboard").classList.add("hidden");
-  document.getElementById("adminLoginSection").classList.remove("hidden");
-  document.getElementById("adminPassword").value = "";
-}
-function renderAdmin(){
-  const users = getUsers();
-  const emails = Object.keys(users);
-  const requests = getRequests();
-  const pending = requests.filter(r => r.status === "Pending demo review").length;
-  const total = emails.reduce((sum,email) => sum + (Number(users[email].balance) || 0),0);
-  document.getElementById("userCount").textContent = emails.length;
-  document.getElementById("allBalances").textContent = money(total)+" BTC";
-  document.getElementById("pendingCount").textContent = pending;
-  document.getElementById("adminUsers").innerHTML = emails.length ? emails.map(email => {
-    const u = users[email];
-    return '<div class="item"><strong>'+escapeHTML(email)+'</strong>'+
-      '<br>Balance: '+money(u.balance)+' BTC'+
-      '<br>Mining: '+(u.mining ? "Active" : "Paused")+'</div>';
-  }).join("") : "No demo users yet.";
-  document.getElementById("adminWithdrawals").innerHTML = requests.length ? requests.map(r => {
-    const action = r.status === "Pending demo review" ?
-      '<button onclick="setRequestStatus(\''+r.id+'\',\'Approved demo only\')">Approve Demo</button>'+
-      '<button class="danger" onclick="setRequestStatus(\''+r.id+'\',\'Rejected demo only\')">Reject Demo</button>' : '';
-    return '<div class="item"><strong>'+escapeHTML(money(r.amount))+' BTC</strong>'+
-      '<br>User: '+escapeHTML(r.email)+
-      '<br>Address: '+escapeHTML(r.wallet)+
-      '<br>Status: '+escapeHTML(r.status)+
-      '<br>'+action+'</div>';
-  }).join("") : "No demo withdrawal requests.";
-}
-function setRequestStatus(id,status){
-  const requests = getRequests();
-  const item = requests.find(r => r.id === id);
-  if(!item) return;
-  item.status = status;
-  saveRequests(requests);
-  renderAdmin();
-  renderHistory();
-}
-render();
-setInterval(() => {
-  if(getUser()) render();
-},1000);
+document.getElementById("signup").onclick=async()=>{
+  if(!client){say("Finish setup by adding your publishable key.");return;}
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  if(!email || password.length<6){
+    say("Enter a valid email and a password of at least 6 characters.");
+    return;
+  }
+  say("Creating account...");
+  const {data,error}=await client.auth.signUp({email,password});
+  if(error){say(error.message);return;}
+  if(data.session){
+    say("Account created successfully.");
+  } else {
+    say("Account created. Check your email and confirm your address before logging in.");
+  }
+};
+document.getElementById("login").onclick=async()=>{
+  if(!client){say("Finish setup by adding your publishable key.");return;}
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  say("Logging in...");
+  const {error}=await client.auth.signInWithPassword({email,password});
+  if(error)say(error.message);
+};
+document.getElementById("logout").onclick=async()=>{
+  if(!client)return;
+  const {error}=await client.auth.signOut();
+  if(error) say(error.message);
+};
+document.getElementById("mine").onclick=()=>{
+  if(!currentUser)return;
+  let data=updateMining(loadData());
+  data.mining=!data.mining;
+  data.last=Date.now();
+  saveData(data);
+  render();
+};
+document.getElementById("withdraw").onclick=()=>{
+  if(!currentUser)return;
+  let data=updateMining(loadData());
+  const wallet=document.getElementById("wallet").value.trim();
+  const amount=Number(document.getElementById("amount").value);
+  const out=document.getElementById("withdrawMessage");
+  if(!wallet){out.textContent="Enter a demo wallet address.";return;}
+  if(!Number.isFinite(amount)||amount<MIN_WITHDRAWAL){
+    out.textContent="Minimum demo request: 0.00010000 BTC.";return;
+  }
+  if(amount>data.balance){out.textContent="Insufficient simulated balance.";return;}
+  data.balance-=amount;
+  data.requests.unshift({
+    amount,status:"Pending demo review",date:new Date().toLocaleString()
+  });
+  saveData(data);
+  document.getElementById("wallet").value="";
+  document.getElementById("amount").value="";
+  out.textContent="Demo request saved locally. No BTC was sent.";
+  render();
+};
+init();
 </script>
 </body>
 </html>
