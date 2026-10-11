@@ -42,6 +42,7 @@ footer{text-align:center;padding:15px;color:#8492a8;font-size:12px}
   <h1>₿ BTC Mining Dashboard</h1>
   <p>Mobile-friendly mining rewards demo</p>
 </header>
+
 <main>
   <div class="notice">
     <strong>Demo mode:</strong> Mining balances and withdrawals are simulations,
@@ -69,6 +70,7 @@ footer{text-align:center;padding:15px;color:#8492a8;font-size:12px}
   <section class="card hidden" id="dashboard">
     <h2>Your Dashboard</h2>
     <div class="status" id="userLabel"></div>
+
     <div class="grid">
       <div class="stat">
         <span>Simulated BTC balance</span>
@@ -87,31 +89,45 @@ footer{text-align:center;padding:15px;color:#8492a8;font-size:12px}
         <strong>0.00010000 BTC</strong>
       </div>
     </div>
+
     <hr>
     <button id="mineBtn" type="button">Start Mining</button>
-    <button id="withdrawBtn" type="button" class="secondary">Request Demo Withdrawal</button>
-    <button id="historyBtn" type="button" class="secondary">Refresh History</button>
+    <button id="withdrawBtn" type="button" class="secondary">
+      Request Demo Withdrawal
+    </button>
+    <button id="historyBtn" type="button" class="secondary">
+      Refresh History
+    </button>
     <button id="logoutBtn" type="button" class="danger">Logout</button>
-    <div id="dashboardMessage" class="status" role="status" aria-live="polite"></div>
+
+    <div id="dashboardMessage" class="status"
+      role="status" aria-live="polite"></div>
+
     <h2 style="margin-top:22px">Withdrawal History</h2>
-    <p class="small">Supabase records for demo requests only. No BTC is sent.</p>
+    <p class="small">
+      Demo requests only. The saved address is a placeholder.
+      No Bitcoin is sent.
+    </p>
     <ul id="historyList"><li>No demo withdrawals yet.</li></ul>
   </section>
 </main>
+
 <footer>BTC Mining Dashboard · Demo application</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 
-/* Existing Supabase project */
 const SUPABASE_URL = "https://zztgmannjcfvigdbwcfm.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_eNrHmjspw9eN9_uwQxir2w_TPOaatqp";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_eNrHmjspw9eN9_uwQxir2w_TPOaatqp";
 
-/* Demo settings */
 const MINING_RATE = 0.00010;
 const MIN_WITHDRAWAL = 0.00010000;
 const SATS_PER_BTC = 100000000;
+
+/* Never use this placeholder for a real Bitcoin transfer. */
+const DEMO_ADDRESS = "DEMO-NO-REAL-BITCOIN";
 
 let supabaseClient = null;
 let currentUser = null;
@@ -119,7 +135,6 @@ let appData = null;
 let miningTimer = null;
 let saveInProgress = false;
 let authActionInProgress = false;
-let authListener = null;
 
 const $ = id => document.getElementById(id);
 
@@ -132,10 +147,9 @@ function formatBTC(value) {
 }
 
 function setBusy(busy) {
-  ["signupBtn", "loginBtn", "mineBtn", "withdrawBtn",
-   "historyBtn", "logoutBtn"].forEach(id => {
-    const el = $(id);
-    if (el) el.disabled = busy;
+  ["signupBtn","loginBtn","mineBtn","withdrawBtn",
+   "historyBtn","logoutBtn"].forEach(id => {
+    if ($(id)) $(id).disabled = busy;
   });
 }
 
@@ -154,19 +168,25 @@ function showAccount() {
 
 function renderDashboard() {
   if (!currentUser || !appData) return;
+
   $("accountCard").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
-  $("userLabel").textContent = "Signed in: " + (currentUser.email || "Account");
+  $("userLabel").textContent =
+    "Signed in: " + (currentUser.email || "Account");
   $("balance").textContent = formatBTC(appData.balance);
-  $("miningStatus").textContent = appData.mining ? "Running (demo)" : "Paused";
-  $("mineBtn").textContent = appData.mining ? "Pause Mining" : "Start Mining";
+  $("miningStatus").textContent =
+    appData.mining ? "Running (demo)" : "Paused";
+  $("mineBtn").textContent =
+    appData.mining ? "Pause Mining" : "Start Mining";
 }
 
 async function saveMiningRecord() {
-  if (!currentUser || !appData || !supabaseClient) return false;
-  if (saveInProgress) return false;
+  if (!currentUser || !appData || !supabaseClient || saveInProgress) {
+    return false;
+  }
 
   saveInProgress = true;
+
   try {
     const row = {
       user_id: currentUser.id,
@@ -187,7 +207,7 @@ async function saveMiningRecord() {
     return true;
   } catch (error) {
     showMessage("dashboardMessage",
-      "Could not save mining data to Supabase: " + error.message);
+      "Could not save mining data: " + error.message);
     return false;
   } finally {
     saveInProgress = false;
@@ -209,8 +229,10 @@ async function loadMiningRecord() {
       mining: false,
       miningStartTime: null
     };
-    const saved = await saveMiningRecord();
-    if (!saved) throw new Error("Could not create your mining record.");
+
+    if (!(await saveMiningRecord())) {
+      throw new Error("Could not create your mining record.");
+    }
     return;
   }
 
@@ -234,15 +256,21 @@ function accrueMining() {
   if (!appData || !appData.mining || !appData.miningStartTime) return;
 
   const now = Date.now();
-  const elapsedHours = Math.max(0, now - appData.miningStartTime) / 3600000;
+  const elapsedHours =
+    Math.max(0, now - appData.miningStartTime) / 3600000;
+
   appData.balance += elapsedHours * MINING_RATE;
   appData.miningStartTime = now;
 }
 
 function startTimer() {
   stopTimer();
+
   miningTimer = setInterval(async () => {
-    if (!currentUser || !appData || !appData.mining || saveInProgress) return;
+    if (!currentUser || !appData || !appData.mining || saveInProgress) {
+      return;
+    }
+
     accrueMining();
     renderDashboard();
     await saveMiningRecord();
@@ -260,11 +288,12 @@ async function enterDashboard(user) {
     renderDashboard();
     startTimer();
     showMessage("dashboardMessage",
-      "Connected. Your demo mining data is stored in Supabase.");
+      "Connected. Your demo data is stored in Supabase.");
+    await refreshHistory();
   } catch (error) {
     showAccount();
     showMessage("authMessage",
-      "Login succeeded, but dashboard data could not load: " + error.message);
+      "Dashboard could not load: " + error.message);
   }
 }
 
@@ -273,6 +302,7 @@ async function createAccount() {
     showMessage("authMessage", "Supabase is not connected. Refresh and try again.");
     return;
   }
+
   const email = $("email").value.trim();
   const password = $("password").value;
 
@@ -284,21 +314,23 @@ async function createAccount() {
     showMessage("authMessage", "Use a password with at least 6 characters.");
     return;
   }
-
   if (authActionInProgress) return;
+
   authActionInProgress = true;
   $("signupBtn").disabled = true;
   showMessage("authMessage", "Creating your account…");
 
   try {
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    const { data, error } = await supabaseClient.auth.signUp({
+      email, password
+    });
     if (error) throw error;
 
     if (data.session && data.user) {
       await enterDashboard(data.user);
     } else {
       showMessage("authMessage",
-        "Registration received. Check your email for a verification link, then return and log in.");
+        "Registration received. Check your email for a verification link, then log in.");
     }
   } catch (error) {
     showMessage("authMessage", "Registration failed: " + error.message);
@@ -313,6 +345,7 @@ async function login() {
     showMessage("authMessage", "Supabase is not connected. Refresh and try again.");
     return;
   }
+
   const email = $("email").value.trim();
   const password = $("password").value;
 
@@ -320,8 +353,8 @@ async function login() {
     showMessage("authMessage", "Enter your email and password.");
     return;
   }
-
   if (authActionInProgress) return;
+
   authActionInProgress = true;
   $("loginBtn").disabled = true;
   showMessage("authMessage", "Signing in…");
@@ -355,9 +388,10 @@ async function toggleMining() {
     }
 
     renderDashboard();
+
     if (!(await saveMiningRecord())) {
       showMessage("dashboardMessage",
-        "The change could not be saved. Refresh history or sign in again.");
+        "Could not save the change. Check your connection and try again.");
       return;
     }
 
@@ -371,6 +405,7 @@ async function toggleMining() {
 
 async function requestWithdrawal() {
   if (!appData || !currentUser || saveInProgress) return;
+
   setBusy(true);
 
   try {
@@ -380,7 +415,7 @@ async function requestWithdrawal() {
       await saveMiningRecord();
       renderDashboard();
       showMessage("dashboardMessage",
-        "Your simulated balance must reach 0.00010000 BTC before a demo request can be recorded.");
+        "Insufficient demo balance. Your balance must reach 0.00010000 BTC. No request was submitted.");
       return;
     }
 
@@ -388,35 +423,47 @@ async function requestWithdrawal() {
     const amountSats = Math.round(amount * SATS_PER_BTC);
     const oldBalance = appData.balance;
 
-    /* Save the simulated balance deduction first. */
+    /* Deduct only simulated demo funds. */
     appData.balance = Number((appData.balance - amount).toFixed(8));
     renderDashboard();
 
     if (!(await saveMiningRecord())) {
       appData.balance = oldBalance;
       renderDashboard();
+      showMessage("dashboardMessage",
+        "The demo balance could not be saved. No withdrawal request was sent.");
       return;
     }
 
+    /*
+      btc_address is required by this database table.
+      This is a fake placeholder, never a real wallet address.
+    */
     const { error } = await supabaseClient
       .from("withdrawal_requests")
       .insert({
         user_id: currentUser.id,
         amount_sats: amountSats,
+        btc_address: DEMO_ADDRESS,
         status: "demo_request"
       });
 
     if (error) {
-      /* Try to restore the previous demo balance if the request fails. */
       appData.balance = oldBalance;
       await saveMiningRecord();
       renderDashboard();
       throw error;
     }
 
-    await refreshHistory();
     showMessage("dashboardMessage",
-      "Demo withdrawal request saved to Supabase. No real BTC was transferred.");
+      "Demo withdrawal request saved. No real BTC was transferred.");
+
+    try {
+      await refreshHistory();
+    } catch (historyError) {
+      showMessage("dashboardMessage",
+        "The demo request was saved, but history could not refresh. Tap Refresh History.");
+    }
   } catch (error) {
     showMessage("dashboardMessage",
       "Could not save the demo withdrawal: " + error.message);
@@ -452,6 +499,7 @@ async function refreshHistory() {
     const date = record.created_at
       ? new Date(record.created_at).toLocaleString()
       : "Date unavailable";
+
     item.textContent = date + " — " + formatBTC(btc) +
       " — " + String(record.status || "Demo request");
     list.appendChild(item);
@@ -461,23 +509,24 @@ async function refreshHistory() {
 async function refreshHistoryButton() {
   try {
     await refreshHistory();
-    showMessage("dashboardMessage", "Withdrawal history refreshed from Supabase.");
+    showMessage("dashboardMessage",
+      "Withdrawal history refreshed from Supabase.");
   } catch (error) {
-    showMessage("dashboardMessage", "Could not load history: " + error.message);
+    showMessage("dashboardMessage",
+      "Could not load history: " + error.message);
   }
 }
 
 async function logout() {
-  if (appData && currentUser) {
-    if (appData.mining) {
-      accrueMining();
-      appData.mining = false;
-      appData.miningStartTime = null;
-    }
+  if (appData && currentUser && appData.mining) {
+    accrueMining();
+    appData.mining = false;
+    appData.miningStartTime = null;
     await saveMiningRecord();
   }
 
   stopTimer();
+
   try {
     if (supabaseClient) {
       const { error } = await supabaseClient.auth.signOut();
@@ -500,7 +549,7 @@ async function init() {
 
   if (!window.supabase || !window.supabase.createClient) {
     showMessage("authMessage",
-      "Supabase library did not load. Check your internet connection and refresh.");
+      "Supabase library did not load. Check your internet and refresh.");
     return;
   }
 
@@ -521,13 +570,12 @@ async function init() {
 
     if (data.session && data.session.user) {
       await enterDashboard(data.session.user);
-      await refreshHistoryButton();
     } else {
       showMessage("authMessage",
         "Connected to Supabase. Create an account or log in.");
     }
 
-    authListener = supabaseClient.auth.onAuthStateChange((event) => {
+    supabaseClient.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {
         showAccount();
         showMessage("authMessage", "You are logged out.");
