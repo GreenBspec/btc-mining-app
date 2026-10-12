@@ -50,9 +50,7 @@ footer{text-align:center;padding:15px;color:#8492a8;font-size:12px}
 <main>
 <div class="notice">
 <strong>Important:</strong>
-Bitcoin mining and withdrawals on this dashboard remain simulations.
-Task points are in-app demo points, not money or Bitcoin.
-Never enter a wallet recovery phrase or wallet password.
+Mining and withdrawals are simulations. Task points are in-app demo points, not money or Bitcoin. Never enter a wallet recovery phrase or wallet password.
 </div>
 
 <section class="card" id="accountCard">
@@ -70,26 +68,12 @@ Never enter a wallet recovery phrase or wallet password.
 <section class="card hidden" id="dashboard">
 <h2>Your Dashboard</h2>
 <div class="status" id="userLabel"></div>
-
 <div class="grid">
-<div class="stat">
-<span>Simulated BTC balance</span>
-<strong id="balance">0.00000000 BTC</strong>
+<div class="stat"><span>Simulated BTC balance</span><strong id="balance">0.00000000 BTC</strong></div>
+<div class="stat"><span>Mining status</span><strong id="miningStatus">Paused</strong></div>
+<div class="stat"><span>Demo mining rate</span><strong>0.00010 BTC/hour</strong></div>
+<div class="stat"><span>Minimum demo withdrawal</span><strong>0.00010000 BTC</strong></div>
 </div>
-<div class="stat">
-<span>Mining status</span>
-<strong id="miningStatus">Paused</strong>
-</div>
-<div class="stat">
-<span>Demo mining rate</span>
-<strong>0.00010 BTC/hour</strong>
-</div>
-<div class="stat">
-<span>Minimum demo withdrawal</span>
-<strong>0.00010000 BTC</strong>
-</div>
-</div>
-
 <hr>
 <button id="mineBtn" type="button">Start Mining</button>
 <button id="withdrawBtn" type="button" class="secondary">Request Demo Withdrawal</button>
@@ -99,10 +83,25 @@ Never enter a wallet recovery phrase or wallet password.
 
 <hr>
 <h2>Rewards Tasks</h2>
-<p class="small">Browse available tasks and their demo point values. Points are not cash or Bitcoin.</p>
+<p class="small">Submit tasks for review. Demo points are not cash or Bitcoin.</p>
 <button id="tasksBtn" type="button" class="secondary">Refresh Tasks</button>
 <div id="tasksMessage" class="status" role="status" aria-live="polite">Loading tasks…</div>
 <div id="tasksList"></div>
+
+<hr>
+<h2>My Task Claims</h2>
+<button id="myClaimsBtn" type="button" class="secondary">Refresh My Claims</button>
+<div id="myClaimsMessage" class="status" role="status" aria-live="polite"></div>
+<div id="myClaimsList"></div>
+
+<section id="adminPanel" class="hidden">
+<hr>
+<h2>Administrator Review</h2>
+<p class="small">Review submitted claims. Approvals record demo points only.</p>
+<button id="adminRefreshBtn" type="button" class="secondary">Refresh Claims for Review</button>
+<div id="adminMessage" class="status" role="status" aria-live="polite"></div>
+<div id="adminClaimsList"></div>
+</section>
 
 <hr>
 <h2>Withdrawal History</h2>
@@ -110,7 +109,6 @@ Never enter a wallet recovery phrase or wallet password.
 <ul id="historyList"><li>No demo withdrawals yet.</li></ul>
 </section>
 </main>
-
 <footer>BTC Rewards Dashboard · Demo application</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -119,7 +117,6 @@ Never enter a wallet recovery phrase or wallet password.
 
 const SUPABASE_URL = "https://zztgmannjcfvigdbwcfm.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_eNrHmjspw9eN9_uwQxir2w_TPOaatqp";
-
 const SATS_PER_BTC = 100000000;
 
 let supabaseClient = null;
@@ -139,18 +136,15 @@ function formatBTC(value) {
   return Math.max(0, Number(value) || 0).toFixed(8) + " BTC";
 }
 
-function setBusy(busy) {
-  [
-    "signupBtn", "loginBtn", "mineBtn", "withdrawBtn",
-    "historyBtn", "logoutBtn", "tasksBtn"
-  ].forEach(id => {
-    if ($(id)) $(id).disabled = busy;
-  });
-}
-
 function stopTimer() {
   if (miningTimer) clearInterval(miningTimer);
   miningTimer = null;
+}
+
+function setBusy(busy) {
+  ["signupBtn","loginBtn","mineBtn","withdrawBtn","historyBtn",
+   "logoutBtn","tasksBtn","myClaimsBtn","adminRefreshBtn"]
+    .forEach(id => { if ($(id)) $(id).disabled = busy; });
 }
 
 function showAccount() {
@@ -159,25 +153,22 @@ function showAccount() {
   appData = null;
   $("dashboard").classList.add("hidden");
   $("accountCard").classList.remove("hidden");
+  $("adminPanel").classList.add("hidden");
 }
 
 function applyServerState(data) {
   if (!data) throw new Error("Supabase returned no mining data.");
-
   appData = {
     balance: Math.max(0, Number(data.balance) || 0),
     mining: Boolean(data.mining_active),
     miningStartTime: data.mining_start_time
-      ? new Date(data.mining_start_time).getTime()
-      : null
+      ? new Date(data.mining_start_time).getTime() : null
   };
-
   renderDashboard();
 }
 
 function renderDashboard() {
   if (!currentUser || !appData) return;
-
   $("accountCard").classList.add("hidden");
   $("dashboard").classList.remove("hidden");
   $("userLabel").textContent = "Signed in: " + (currentUser.email || "Account");
@@ -187,7 +178,7 @@ function renderDashboard() {
 }
 
 async function loadMiningRecord() {
-  const { data, error } = await supabaseClient.rpc("get_demo_mining_state");
+  const {data,error} = await supabaseClient.rpc("get_demo_mining_state");
   if (error) throw error;
   applyServerState(data);
 }
@@ -197,13 +188,14 @@ async function enterDashboard(user) {
   currentUser = user;
   appData = null;
   showMessage("authMessage", "Loading your saved dashboard…");
-
   try {
     await loadMiningRecord();
     startTimer();
     showMessage("dashboardMessage", "Connected to Supabase. Mining features are demo only.");
     await refreshHistory();
     await loadTasks();
+    await loadMyClaims();
+    await checkAdminAccess();
   } catch (error) {
     showAccount();
     showMessage("authMessage", "Dashboard could not load: " + error.message);
@@ -212,18 +204,13 @@ async function enterDashboard(user) {
 
 function startTimer() {
   stopTimer();
-
   miningTimer = setInterval(async () => {
     if (!currentUser || !appData || saveInProgress) return;
-
     saveInProgress = true;
-    try {
-      await loadMiningRecord();
-    } catch (error) {
+    try { await loadMiningRecord(); }
+    catch (error) {
       showMessage("dashboardMessage", "Could not refresh mining data: " + error.message);
-    } finally {
-      saveInProgress = false;
-    }
+    } finally { saveInProgress = false; }
   }, 10000);
 }
 
@@ -232,33 +219,19 @@ async function createAccount() {
     showMessage("authMessage", "Supabase is not connected. Refresh and try again.");
     return;
   }
-
   const email = $("email").value.trim();
   const password = $("password").value;
-
-  if (!email || !password) {
-    showMessage("authMessage", "Enter your email and password.");
-    return;
-  }
-  if (password.length < 6) {
-    showMessage("authMessage", "Use at least 6 characters for your password.");
-    return;
-  }
+  if (!email || !password) return showMessage("authMessage", "Enter your email and password.");
+  if (password.length < 6) return showMessage("authMessage", "Use at least 6 characters for your password.");
   if (authActionInProgress) return;
-
   authActionInProgress = true;
   $("signupBtn").disabled = true;
   showMessage("authMessage", "Creating your account…");
-
   try {
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    const {data,error} = await supabaseClient.auth.signUp({email,password});
     if (error) throw error;
-
-    if (data.session && data.user) {
-      await enterDashboard(data.user);
-    } else {
-      showMessage("authMessage", "Registration received. Check your email for verification, then log in.");
-    }
+    if (data.session && data.user) await enterDashboard(data.user);
+    else showMessage("authMessage", "Registration received. Check your email for verification, then log in.");
   } catch (error) {
     showMessage("authMessage", "Registration failed: " + error.message);
   } finally {
@@ -268,26 +241,16 @@ async function createAccount() {
 }
 
 async function login() {
-  if (!supabaseClient) {
-    showMessage("authMessage", "Supabase is not connected. Refresh and try again.");
-    return;
-  }
-
+  if (!supabaseClient) return showMessage("authMessage", "Supabase is not connected. Refresh and try again.");
   const email = $("email").value.trim();
   const password = $("password").value;
-
-  if (!email || !password) {
-    showMessage("authMessage", "Enter your email and password.");
-    return;
-  }
+  if (!email || !password) return showMessage("authMessage", "Enter your email and password.");
   if (authActionInProgress) return;
-
   authActionInProgress = true;
   $("loginBtn").disabled = true;
   showMessage("authMessage", "Signing in…");
-
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    const {data,error} = await supabaseClient.auth.signInWithPassword({email,password});
     if (error) throw error;
     await enterDashboard(data.user);
   } catch (error) {
@@ -300,84 +263,60 @@ async function login() {
 
 async function toggleMining() {
   if (!appData || !currentUser || saveInProgress) return;
-
   const newState = !appData.mining;
   setBusy(true);
   saveInProgress = true;
-
   try {
-    const { data, error } = await supabaseClient.rpc("set_demo_mining", { p_active: newState });
+    const {data,error} = await supabaseClient.rpc("set_demo_mining",{p_active:newState});
     if (error) throw error;
-
     applyServerState(data);
     showMessage("dashboardMessage", newState
       ? "Demo mining started. No real Bitcoin is mined."
       : "Demo mining paused.");
   } catch (error) {
     showMessage("dashboardMessage", "Could not change mining status: " + error.message);
-  } finally {
-    saveInProgress = false;
-    setBusy(false);
-  }
+  } finally { saveInProgress = false; setBusy(false); }
 }
 
 async function requestWithdrawal() {
   if (!appData || !currentUser || saveInProgress) return;
-
   setBusy(true);
   saveInProgress = true;
-
   try {
-    const { error } = await supabaseClient.rpc("request_demo_withdrawal");
+    const {error} = await supabaseClient.rpc("request_demo_withdrawal");
     if (error) throw error;
-
     await loadMiningRecord();
     await refreshHistory();
     showMessage("dashboardMessage", "Demo withdrawal saved as pending. No real Bitcoin was transferred.");
   } catch (error) {
     showMessage("dashboardMessage", "Withdrawal was not completed: " + error.message);
-  } finally {
-    saveInProgress = false;
-    setBusy(false);
-  }
+  } finally { saveInProgress = false; setBusy(false); }
 }
 
 async function refreshHistory() {
   if (!currentUser || !supabaseClient) return;
-
-  const { data, error } = await supabaseClient
-    .from("withdrawal_requests")
+  const {data,error} = await supabaseClient.from("withdrawal_requests")
     .select("id,amount_sats,status,created_at")
-    .eq("user_id", currentUser.id)
-    .order("created_at", { ascending: false });
-
+    .eq("user_id",currentUser.id).order("created_at",{ascending:false});
   if (error) throw error;
-
   const list = $("historyList");
   list.replaceChildren();
-
-  if (!data || data.length === 0) {
+  if (!data || !data.length) {
     const item = document.createElement("li");
     item.textContent = "No demo withdrawals yet.";
     list.appendChild(item);
     return;
   }
-
   data.forEach(record => {
     const item = document.createElement("li");
-    const btc = (Number(record.amount_sats) || 0) / SATS_PER_BTC;
-    const date = record.created_at
-      ? new Date(record.created_at).toLocaleString()
-      : "Date unavailable";
-
-    item.textContent = date + " — " + formatBTC(btc) + " — " + String(record.status || "pending");
+    const btc = (Number(record.amount_sats)||0)/SATS_PER_BTC;
+    item.textContent = (record.created_at ? new Date(record.created_at).toLocaleString() : "Date unavailable")
+      + " — " + formatBTC(btc) + " — " + String(record.status||"pending");
     list.appendChild(item);
   });
 }
 
 async function refreshHistoryButton() {
-  if (saveInProgress) return;
-
   try {
     await refreshHistory();
     showMessage("dashboardMessage", "Withdrawal history refreshed.");
@@ -386,80 +325,181 @@ async function refreshHistoryButton() {
   }
 }
 
-/*
-  Reads active tasks only. The database RLS policy controls visibility.
-  This function does not award points or mark tasks as completed.
-*/
 async function loadTasks() {
   const list = $("tasksList");
   list.replaceChildren();
-
   if (!currentUser || !supabaseClient) {
-    showMessage("tasksMessage", "Sign in to view available tasks.");
+    showMessage("tasksMessage", "Sign in to view tasks.");
     return;
   }
-
-  showMessage("tasksMessage", "Loading available tasks…");
-
+  showMessage("tasksMessage", "Loading tasks…");
   try {
-    const { data, error } = await supabaseClient
-      .from("reward_tasks")
+    const {data,error} = await supabaseClient.from("reward_tasks")
       .select("id,title,description,points")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
+      .eq("is_active",true).order("created_at",{ascending:false});
     if (error) throw error;
-
-    if (!data || data.length === 0) {
+    if (!data || !data.length) {
       showMessage("tasksMessage", "No active tasks are available yet.");
       return;
     }
-
-    data.forEach(task => {
+    for (const task of data) {
       const card = document.createElement("article");
       card.className = "task";
-
       const title = document.createElement("h3");
       title.textContent = task.title;
-
       const description = document.createElement("p");
       description.textContent = task.description || "No further details provided.";
-
       const points = document.createElement("p");
       points.className = "points";
       points.textContent = String(task.points) + " demo points";
-
       const button = document.createElement("button");
       button.type = "button";
       button.className = "secondary";
-      button.disabled = true;
-      button.textContent = "Completion setup coming next";
-
-      card.append(title, description, points, button);
+      button.textContent = "Submit task for review";
+      button.addEventListener("click", () => submitTask(task.id, button));
+      card.append(title,description,points,button);
       list.appendChild(card);
-    });
-
-    showMessage("tasksMessage", "Tasks loaded from Supabase. Completion and points approval are not enabled yet.");
+    }
+    showMessage("tasksMessage", "Tasks loaded. Submit a task to request review.");
   } catch (error) {
     showMessage("tasksMessage", "Could not load tasks: " + error.message);
   }
 }
 
+async function submitTask(taskId, button) {
+  if (!currentUser) return;
+  button.disabled = true;
+  try {
+    const {error} = await supabaseClient.rpc("submit_reward_task_claim",{p_task_id:taskId});
+    if (error) throw error;
+    showMessage("tasksMessage", "Task claim submitted for review. Points are not awarded until approval.");
+    await loadTasks();
+    await loadMyClaims();
+  } catch (error) {
+    showMessage("tasksMessage", "Claim was not submitted: " + error.message);
+    button.disabled = false;
+  }
+}
+
+async function loadMyClaims() {
+  const list = $("myClaimsList");
+  list.replaceChildren();
+  if (!currentUser) return;
+  showMessage("myClaimsMessage", "Loading your claims…");
+  try {
+    const {data,error} = await supabaseClient.from("reward_task_claims")
+      .select("id,task_id,status,points_awarded,created_at")
+      .eq("user_id",currentUser.id).order("created_at",{ascending:false});
+    if (error) throw error;
+    if (!data || !data.length) {
+      showMessage("myClaimsMessage", "You have not submitted any task claims.");
+      return;
+    }
+    data.forEach(claim => {
+      const item = document.createElement("div");
+      item.className = "task";
+      const title = document.createElement("h3");
+      title.textContent = "Task claim";
+      const status = document.createElement("p");
+      status.textContent = "Status: " + claim.status;
+      const points = document.createElement("p");
+      points.className = "points";
+      points.textContent = "Demo points awarded: " + (Number(claim.points_awarded)||0);
+      const date = document.createElement("p");
+      date.className = "small";
+      date.textContent = claim.created_at ? new Date(claim.created_at).toLocaleString() : "";
+      item.append(title,status,points,date);
+      list.appendChild(item);
+    });
+    showMessage("myClaimsMessage", "Your claim list is up to date.");
+  } catch (error) {
+    showMessage("myClaimsMessage", "Could not load your claims: " + error.message);
+  }
+}
+
+async function checkAdminAccess() {
+  $("adminPanel").classList.add("hidden");
+  try {
+    const {error} = await supabaseClient.rpc("get_reward_task_claims_for_admin");
+    if (!error) {
+      $("adminPanel").classList.remove("hidden");
+      await loadAdminClaims();
+    }
+  } catch (_) {
+    $("adminPanel").classList.add("hidden");
+  }
+}
+
+async function loadAdminClaims() {
+  const list = $("adminClaimsList");
+  list.replaceChildren();
+  showMessage("adminMessage", "Loading claims for review…");
+  try {
+    const {data,error} = await supabaseClient.rpc("get_reward_task_claims_for_admin");
+    if (error) throw error;
+    const pending = (data||[]).filter(claim => claim.claim_status === "pending");
+    if (!pending.length) {
+      showMessage("adminMessage", "There are no pending claims to review.");
+      return;
+    }
+    pending.forEach(claim => {
+      const card = document.createElement("article");
+      card.className = "task";
+      const title = document.createElement("h3");
+      title.textContent = claim.task_title || "Task claim";
+      const email = document.createElement("p");
+      email.textContent = "User: " + (claim.claimant_email || "Unknown");
+      const points = document.createElement("p");
+      points.className = "points";
+      points.textContent = String(claim.points||0) + " demo points";
+      const date = document.createElement("p");
+      date.className = "small";
+      date.textContent = claim.submitted_at ? new Date(claim.submitted_at).toLocaleString() : "";
+      const approve = document.createElement("button");
+      approve.type = "button";
+      approve.textContent = "Approve claim";
+      approve.addEventListener("click", () => reviewClaim(claim.claim_id,true));
+      const reject = document.createElement("button");
+      reject.type = "button";
+      reject.className = "danger";
+      reject.textContent = "Reject claim";
+      reject.addEventListener("click", () => reviewClaim(claim.claim_id,false));
+      card.append(title,email,points,date,approve,reject);
+      list.appendChild(card);
+    });
+    showMessage("adminMessage", "Pending claims are ready for review.");
+  } catch (error) {
+    showMessage("adminMessage", "Could not load review list: " + error.message);
+  }
+}
+
+async function reviewClaim(claimId, approve) {
+  if (!confirm(approve ? "Approve this claim and record demo points?" : "Reject this task claim?")) return;
+  try {
+    const {data,error} = await supabaseClient.rpc("review_reward_task_claim",{
+      p_claim_id:claimId,
+      p_approve:approve
+    });
+    if (error) throw error;
+    showMessage("adminMessage", typeof data === "string" ? data : "Review saved.");
+    await loadAdminClaims();
+    await loadMyClaims();
+  } catch (error) {
+    showMessage("adminMessage", "Review failed: " + error.message);
+  }
+}
+
 async function logout() {
   if (!currentUser || saveInProgress) return;
-
   setBusy(true);
   saveInProgress = true;
-
   try {
     if (appData && appData.mining) {
-      const { error } = await supabaseClient.rpc("set_demo_mining", { p_active: false });
+      const {error} = await supabaseClient.rpc("set_demo_mining",{p_active:false});
       if (error) throw error;
     }
-
-    const { error } = await supabaseClient.auth.signOut();
+    const {error} = await supabaseClient.auth.signOut();
     if (error) throw error;
-
     showAccount();
     showMessage("authMessage", "You are logged out.");
   } catch (error) {
@@ -471,49 +511,40 @@ async function logout() {
 }
 
 async function init() {
-  $("signupBtn").addEventListener("click", createAccount);
-  $("loginBtn").addEventListener("click", login);
-  $("mineBtn").addEventListener("click", toggleMining);
-  $("withdrawBtn").addEventListener("click", requestWithdrawal);
-  $("historyBtn").addEventListener("click", refreshHistoryButton);
-  $("tasksBtn").addEventListener("click", loadTasks);
-  $("logoutBtn").addEventListener("click", logout);
+  $("signupBtn").addEventListener("click",createAccount);
+  $("loginBtn").addEventListener("click",login);
+  $("mineBtn").addEventListener("click",toggleMining);
+  $("withdrawBtn").addEventListener("click",requestWithdrawal);
+  $("historyBtn").addEventListener("click",refreshHistoryButton);
+  $("tasksBtn").addEventListener("click",loadTasks);
+  $("myClaimsBtn").addEventListener("click",loadMyClaims);
+  $("adminRefreshBtn").addEventListener("click",loadAdminClaims);
+  $("logoutBtn").addEventListener("click",logout);
 
   if (!window.supabase || !window.supabase.createClient) {
-    showMessage("authMessage", "Supabase library did not load. Check your internet and refresh.");
+    showMessage("authMessage","Supabase library did not load. Check your internet and refresh.");
     return;
   }
-
-  if (!SUPABASE_URL.startsWith("https://") ||
-      !SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")) {
-    showMessage("authMessage", "Check your Supabase URL and publishable key.");
-    return;
-  }
-
   try {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-    const { data, error } = await supabaseClient.auth.getSession();
+    supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    const {data,error} = await supabaseClient.auth.getSession();
     if (error) throw error;
-
     if (data.session && data.session.user) {
       await enterDashboard(data.session.user);
     } else {
-      showMessage("authMessage", "Connected to Supabase. Create an account or log in.");
+      showMessage("authMessage","Connected to Supabase. Create an account or log in.");
     }
-
-    supabaseClient.auth.onAuthStateChange((event) => {
+    supabaseClient.auth.onAuthStateChange(event => {
       if (event === "SIGNED_OUT") {
         showAccount();
-        showMessage("authMessage", "You are logged out.");
+        showMessage("authMessage","You are logged out.");
       }
     });
   } catch (error) {
     supabaseClient = null;
-    showMessage("authMessage", "Supabase connection failed: " + error.message);
+    showMessage("authMessage","Supabase connection failed: " + error.message);
   }
 }
-
 init();
 </script>
 </body>
