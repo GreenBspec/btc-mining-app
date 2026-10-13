@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1120">
+  <meta name="description" content="Learn about BTC Rewards Dashboard, our goals, online work information, and transparent demo rewards.">
+  <title>About Us | BTC Rewards Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #0b1120;
+      color: #f3f4f6;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+    }
+    header {
+      background: #111827;
+      padding: 25px 18px;
+      border-bottom: 1px solid #29374c;
+    }
+    header h1 { margin: 0; font-size: 25px; }
+    header p { color: #aab6ca; margin-bottom: 0; }
+    main { max-width: 760px; margin: auto; padding: 18px; }
+    section {
+      background: #151f31;
+      border: 1px solid #29374c;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 20px; margin-top: 0; }
+    a { color: #86efac; }
+    .notice {
+      background: #332914;
+      color: #ffe4a3;
+      padding: 14px;
+      border-radius: 10px;
+    }
+    .button {
+      display: inline-block;
+      background: #22c55e;
+      color: #06210e;
+      padding: 12px 18px;
+      border-radius: 9px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #aab6ca;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>About BTC Rewards Dashboard</h1>
+    <p>Useful information, transparency and opportunities to learn.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Who We Are</h2>
+      <p>
+        BTC Rewards Dashboard is a developing online platform designed
+        to provide a simple mobile-friendly experience for account
+        management, task demonstrations and information about online
+        earning opportunities.
+      </p>
+      <p>
+        Our goal is to help visitors understand online earning options
+        and build a platform that may eventually support legitimate
+        revenue-generating activities.
+      </p>
+    </section>
+
+    <section>
+      <h2>Our Content</h2>
+      <p>We aim to publish useful and original information about:</p>
+      <ul>
+        <li>Getting started with online work.</li>
+        <li>Translation and language-based opportunities.</li>
+        <li>Understanding online earning platforms.</li>
+        <li>Protecting accounts and avoiding online scams.</li>
+        <li>Using digital tools from a mobile phone.</li>
+      </ul>
+      <p>
+        Information will be developed to help readers make informed
+        decisions. We encourage visitors to verify opportunities
+        before sharing personal information or spending money.
+      </p>
+    </section>
+
+    <section>
+      <h2>Transparent Demo Rewards</h2>
+      <div class="notice">
+        Important: The current mining balances, mining activity,
+        withdrawals and task points on this website are simulations.
+        They do not represent real Bitcoin, cash or guaranteed income.
+        No real Bitcoin is mined or transferred by the demo dashboard.
+      </div>
+      <p>
+        We will clearly identify any future paid opportunities and
+        explain their requirements before users participate.
+        Real payments would require a legitimate funding source,
+        suitable payment arrangements and any necessary approvals.
+      </p>
+    </section>
+
+    <section>
+      <h2>Advertising and Revenue</h2>
+      <p>
+        We are exploring legitimate ways to support this website,
+        including original content and advertising programmes.
+        Advertising participation is subject to provider approval
+        and applicable policies.
+      </p>
+      <p>
+        We do not promise earnings, and we do not ask visitors to
+        click advertisements in exchange for rewards. Any future
+        revenue-sharing arrangement will depend on an approved
+        programme and actual eligible revenue.
+      </p>
+    </section>
+
+    <section>
+      <h2>Protect Yourself Online</h2>
+      <p>
+        Never share your wallet recovery phrase, private keys,
+        banking PIN or account password with a website claiming
+        to offer rewards. Be cautious of anyone promising guaranteed
+        profits or asking you to pay a fee to unlock supposed earnings.
+      </p>
+    </section>
+
+    <section>
+      <h2>Visit the Dashboard</h2>
+      <p>
+        Return to the existing dashboard to access your account
+        and its demo features.
+      </p>
+      <a class="button" href="index.html">Open Dashboard</a>
+    </section>
+  </main>
+
+  <footer>
+    BTC Rewards Dashboard · Information and demo features
+  </footer>
+</body>
+</html>
